@@ -1,4 +1,4 @@
-package com.HeoJin.RecipeSearchEngine.config.mongo;
+package com.HeoJin.RecipeSearchEngine.global.config.mongo;
 
 
 import com.mongodb.client.MongoClient;
@@ -34,10 +34,5 @@ public class MongoConfig {
     public MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDatabaseFactory) {
         return new MongoTemplate(mongoDatabaseFactory);
     }
-
-
-
-
-
 
 }
