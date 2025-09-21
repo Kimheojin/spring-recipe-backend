@@ -11,7 +11,9 @@ public interface RecipeBasicRepository {
 
     List<RecipeResponseDto> getFirstPageRecipe(int pageSize);
 
-    List<RecipeResponseDto> getPageRecipe(String objectId, int page, int pageSize);
+    // 양수 페이지 증가하는 경우
+    List<RecipeResponseDto> getLtPageRecipe(int page, int pageSize, String objectId);
 
-
+    // 음수 페이지 증가하는 경우
+    List<RecipeResponseDto> getGtPageRecipe(int page, int pageSize,  String objectId);
 }

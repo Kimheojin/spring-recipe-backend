@@ -1,6 +1,7 @@
 package com.HeoJin.RecipeSearchEngine.basicSearch.dto;
 
 
+import com.HeoJin.RecipeSearchEngine.global.entity.Recipe;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,5 +25,18 @@ public class RecipeResponseDto {
     @Builder.Default
     private List<String> ingredients = new ArrayList<>();
 
-
+    public static RecipeResponseDto from(Recipe recipe) {
+        return RecipeResponseDto.builder()
+                .recipeName(recipe.getRecipeName())
+                .cookingOrder(recipe.getCookingOrderList().stream()
+                        .map(order -> CookingOrderDto.builder()
+                                .step(order.getStep())
+                                .instruction(order.getInstruction())
+                                .build())
+                        .toList())
+                .sourceUrl(recipe.getSourceUrl())
+                .siteIndex(recipe.getSiteIndex())
+                .ingredients(recipe.getIngredients())
+                .build();
+    }
 }

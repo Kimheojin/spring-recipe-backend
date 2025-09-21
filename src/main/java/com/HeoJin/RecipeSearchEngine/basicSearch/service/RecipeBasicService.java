@@ -17,13 +17,16 @@ public class RecipeBasicService {
         return recipeBasicRepository.getRecipe(objectId);
     }
 
-    public RecipeListResponseDto getPageRecipe(String objectId, int page, int pageSize) {
-        if(objectId == ""){ // 공백인 경우 첫 페이지 반환
-            new RecipeListResponseDto(recipeBasicRepository.getFirstPageRecipe(pageSize));
+    public RecipeListResponseDto getPageRecipe(int page, int pageSize, String objectId) {
+        if (page > 0) {
+            return new RecipeListResponseDto(recipeBasicRepository.getGtPageRecipe(page, pageSize, objectId));
+        } else if (page < 0) {
+            return new RecipeListResponseDto(recipeBasicRepository.getLtPageRecipe(page, pageSize, objectId));
+        } else {
+            // page == 0인 경우 처리
+            return new RecipeListResponseDto(recipeBasicRepository.getFirstPageRecipe(pageSize));
         }
-        // 아닌 경우 object id 기반으로 넘긴 다음에 하기
-        
-        return new RecipeListResponseDto(recipeBasicRepository.getPageRecipe(objectId, page, pageSize));
+
     }
 
 

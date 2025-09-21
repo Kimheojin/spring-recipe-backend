@@ -6,10 +6,7 @@ import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeResponseDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.service.RecipeBasicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/seo")
@@ -28,13 +25,13 @@ public class BasicSearchController {
 
     // 전체 조회 + id 기반  페이징 지원
     // 인덱스 태우고 페이지 객체 따로 만들어야 할듯
-    @GetMapping("/basic/recipes/{pageNumber}/{pageSize}/{objectId}")
+    @GetMapping("/basic/recipes")
     public ResponseEntity<RecipeListResponseDto> getAllRecipe(
-            @PathVariable int pageNumber, // 현재 page 와 페이지 수 차이
-            @PathVariable int pageSize, // 페이지 사이즈
-            @PathVariable String objectId // 기준
+            @RequestParam(defaultValue = "0") int page, // 현재 page 와 페이지 수 차이
+            @RequestParam(defaultValue = "10") int pageSize, // 페이지 사이즈
+            @RequestParam(defaultValue = "") String objectId // 기준
     ) {
-        return ResponseEntity.ok(recipeBasicService.getPageRecipe(objectId, pageNumber, pageSize));
+        return ResponseEntity.ok(recipeBasicService.getPageRecipe(page, pageSize, objectId));
     }
 
 
