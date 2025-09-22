@@ -4,7 +4,6 @@ package com.HeoJin.RecipeSearchEngine.basicSearch.repository;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeResponseDto;
 import com.HeoJin.RecipeSearchEngine.global.entity.Recipe;
 import lombok.RequiredArgsConstructor;
-import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -14,9 +13,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,8 +29,9 @@ public class RecipeBasicRepositoryImpl implements RecipeBasicRepository {
 
     @Override
     public RecipeResponseDto getRecipe(String objectId) {
+        ObjectId id = new ObjectId(objectId);
 
-        Recipe singleRecipe = mongoTemplate.findById(objectId, Recipe.class);
+        Recipe singleRecipe = mongoTemplate.findById(id, Recipe.class, collectionName);
 
         return RecipeResponseDto.from(singleRecipe);
     }
