@@ -2,6 +2,7 @@ package com.HeoJin.RecipeSearchEngine.global.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class Recipe {
     private String sourceUrl;
     private String siteIndex;
     @Builder.Default
-    private List<String> ingredients = new ArrayList<>();
+    private List<String> ingredientList = new ArrayList<>();
     @Builder.Default
     private List<cookingOrder> cookingOrderList = new ArrayList<>();
 }
