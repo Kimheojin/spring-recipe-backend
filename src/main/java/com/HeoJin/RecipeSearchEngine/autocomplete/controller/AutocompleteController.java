@@ -1,7 +1,8 @@
 package com.HeoJin.RecipeSearchEngine.autocomplete.controller;
 
 
-import com.HeoJin.RecipeSearchEngine.autocomplete.dto.ListAutocompleteDto;
+import com.HeoJin.RecipeSearchEngine.autocomplete.dto.ListAutocompleteIngredientDto;
+import com.HeoJin.RecipeSearchEngine.autocomplete.dto.ListAutocompleteRecipeNameDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.service.AutocompleteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class AutocompleteController {
     // requestParam 으로 받기
     // 재룡전용
     @GetMapping("/autocomplete/ingredient")
-    public ResponseEntity<ListAutocompleteDto> IngredientAutocomplete(
+    public ResponseEntity<ListAutocompleteIngredientDto> IngredientAutocomplete(
             @RequestParam("term") String term
     ) {
         return ResponseEntity.ok(autocompleteService.getIngredientAutocomplete(term));
@@ -30,7 +31,7 @@ public class AutocompleteController {
 
     // recipeName 전용
     @GetMapping("/autocomplete/recipename")
-    public ResponseEntity<ListAutocompleteDto> recipeNameAutocomplete(
+    public ResponseEntity<ListAutocompleteRecipeNameDto> recipeNameAutocomplete(
             @RequestParam("term") String term
     ) {
         return ResponseEntity.ok(autocompleteService.getRecipeAutocomplete(term));
