@@ -15,9 +15,9 @@ public class BasicSearchController {
 
     private final RecipeBasicService recipeBasicService;
     // 단일 조회 먼저
-    @GetMapping("/basic/recipe/{objectId}")
+    @GetMapping("/basic/recipe")
     public ResponseEntity<RecipeResponseDto> getRecipe(
-            @PathVariable String objectId
+            @RequestParam String objectId
     ) {
         return ResponseEntity.ok(recipeBasicService.getSingleRecipe(objectId));
     }

@@ -4,6 +4,7 @@ package com.HeoJin.RecipeSearchEngine.basicSearch.repository;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeResponseDto;
 import com.HeoJin.RecipeSearchEngine.global.entity.Recipe;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -56,13 +57,15 @@ public class RecipeBasicRepositoryImpl implements RecipeBasicRepository {
     public List<RecipeResponseDto> getLtPageRecipe(int page, int pageSize, String objectId) {
         Query query = new Query();
         int absPage = Math.abs(page);
-        query.addCriteria(Criteria.where("_id").lt(new ObjectId(objectId)));
+
+        query.addCriteria(Criteria.where("_id").lte(new ObjectId(objectId)));
         query.with(Sort.by(Sort.Direction.DESC, "_id"));
         query.limit(pageSize);
         query.skip(absPage * pageSize);
         query.withHint("_id_");
 
         List<Recipe> recipes = mongoTemplate.find(query, Recipe.class, collectionName);
+
 
 
         List<RecipeResponseDto> result = recipes.stream()
