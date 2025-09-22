@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -31,10 +32,6 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     // ingredientList 따로 전처리 해서 하는 식으로 리팩토링 해야할듯
     @Override
     public List<AutocompleteIngredientDto> getResultAboutIngredient(String term) {
-        log.info("=== getResultAboutIngredient 시작 ===");
-        log.info("입력 term: [{}]", term);
-        log.info("term이 null인가? {}", term == null);
-        log.info("term이 비어있나? {}", term != null && term.isEmpty());
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.stage(Document.parse("""
                         {
@@ -59,7 +56,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                                         "regex": "%s"
                                     }
                                 }
-                            }
+                            }df
                         }
                         """.formatted(term)).as("matchingIngredients"),
                 Aggregation.unwind("matchingIngredients"),
@@ -69,7 +66,6 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                 Aggregation.limit(10)
         );
         AggregationResults<AutocompleteIngredientDto> results = mongoTemplate.aggregate(aggregation, collectionName, AutocompleteIngredientDto.class);
-        log.info("results: " + results.getMappedResults());
 
 
         return results.getMappedResults(); // list 형태로 반환
@@ -78,11 +74,14 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
 
     @Override
     public List<AutocompleteRecipeNameDto> getResultAboutRecipeName(String term) {
+
+
+        log.info("term 들어오는 지 : {}", term);
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.stage(Document.parse("""
                         {
                             "$search": {
-                                "index": "recipeNAme_autocomplete_kr",
+                                "index": "recipeName_autocomplete_kr",
                                  "autocomplete": {
                                     "query": "%s",
                                     "path": "recipeName",
@@ -94,10 +93,21 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                 Aggregation.project()
                                 .andExpression("$recipeName").as("recipeName"),
                 Aggregation.group("recipeName"), // 중복 제거
+                Aggregation.project().andExpression("$_id").as("recipeName"),
                 Aggregation.limit(10)
         );
+
         AggregationResults<AutocompleteRecipeNameDto> results = mongoTemplate.aggregate(aggregation, collectionName, AutocompleteRecipeNameDto.class);
+        log.info("result 관련 : {} ",  results.getMappedResults());
+        log.info("=== 집계 결과 분석 ===");
+        log.info("results 객체가 null인가? {}", results == null);
+        log.info("getMappedResults()가 null인가? {}", results.getMappedResults() == null);
+        log.info("결과 개수: {}", results.getMappedResults().size());
+        log.info("result 관련 : {}", results.getMappedResults());
+
         return results.getMappedResults();
+
+
 
     }
 }
