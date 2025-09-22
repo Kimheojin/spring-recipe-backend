@@ -4,6 +4,7 @@ package com.HeoJin.RecipeSearchEngine.basicSearch.service;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeListResponseDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeResponseDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.repository.RecipeBasicRepository;
+import com.HeoJin.RecipeSearchEngine.global.exception.mongo.CustomMongoNullException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,14 @@ public class RecipeBasicService {
 
 
     public RecipeResponseDto getSingleRecipe(String objectId) {
-        return recipeBasicRepository.getRecipe(objectId);
+        RecipeResponseDto recipe = recipeBasicRepository.getRecipe(objectId);
+
+        if(recipe == null){
+            throw new CustomMongoNullException("단일 레시피 조회");
+        }
+        return recipe;
+
+
     }
 
     public RecipeListResponseDto getPageRecipe(int page, int pageSize, String objectId) {
