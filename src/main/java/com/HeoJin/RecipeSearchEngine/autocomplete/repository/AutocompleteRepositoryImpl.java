@@ -4,7 +4,6 @@ package com.HeoJin.RecipeSearchEngine.autocomplete.repository;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteIngredientDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteRecipeNameDto;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -13,13 +12,11 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 @Profile("!test")
 @RequiredArgsConstructor
-@Slf4j
 public class AutocompleteRepositoryImpl implements AutocompleteRepository {
 
     private final MongoTemplate mongoTemplate;
@@ -76,7 +73,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     public List<AutocompleteRecipeNameDto> getResultAboutRecipeName(String term) {
 
 
-        log.info("term 들어오는 지 : {}", term);
+
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.stage(Document.parse("""
                         {
@@ -98,12 +95,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
         );
 
         AggregationResults<AutocompleteRecipeNameDto> results = mongoTemplate.aggregate(aggregation, collectionName, AutocompleteRecipeNameDto.class);
-        log.info("result 관련 : {} ",  results.getMappedResults());
-        log.info("=== 집계 결과 분석 ===");
-        log.info("results 객체가 null인가? {}", results == null);
-        log.info("getMappedResults()가 null인가? {}", results.getMappedResults() == null);
-        log.info("결과 개수: {}", results.getMappedResults().size());
-        log.info("result 관련 : {}", results.getMappedResults());
+
 
         return results.getMappedResults();
 
