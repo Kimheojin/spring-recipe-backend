@@ -4,6 +4,7 @@ package com.HeoJin.RecipeSearchEngine.autocomplete.repository;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteIngredientDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteRecipeNameDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -17,6 +18,7 @@ import java.util.List;
 @Repository
 @Profile("!test")
 @RequiredArgsConstructor
+@Slf4j
 public class AutocompleteRepositoryImpl implements AutocompleteRepository {
 
     private final MongoTemplate mongoTemplate;
@@ -29,6 +31,10 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     // ingredientList 따로 전처리 해서 하는 식으로 리팩토링 해야할듯
     @Override
     public List<AutocompleteIngredientDto> getResultAboutIngredient(String term) {
+        log.info("=== getResultAboutIngredient 시작 ===");
+        log.info("입력 term: [{}]", term);
+        log.info("term이 null인가? {}", term == null);
+        log.info("term이 비어있나? {}", term != null && term.isEmpty());
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.stage(Document.parse("""
                         {
@@ -58,10 +64,14 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                         """.formatted(term)).as("matchingIngredients"),
                 Aggregation.unwind("matchingIngredients"),
                 Aggregation.project().andExpression("$matchingIngredients").as("ingredient"),
-                Aggregation.group("ingredient"), // 중복 제거
+                Aggregation.group("ingredient"),
+                Aggregation.project().andExpression("$_id").as("ingredient"),// 중복 제거
                 Aggregation.limit(10)
         );
         AggregationResults<AutocompleteIngredientDto> results = mongoTemplate.aggregate(aggregation, collectionName, AutocompleteIngredientDto.class);
+        log.info("results: " + results.getMappedResults());
+
+
         return results.getMappedResults(); // list 형태로 반환
 
     }
