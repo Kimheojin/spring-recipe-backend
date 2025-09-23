@@ -6,6 +6,7 @@ import com.HeoJin.RecipeSearchEngine.global.entity.Recipe;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-@Profile("!test")
+@Primary
 @RequiredArgsConstructor
 public class IntegrationSearchRepositoryImpl implements IntegrationSearchRepository {
 

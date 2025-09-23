@@ -35,6 +35,10 @@ dependencies {
 	// springRest Docs
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+
+	// 테스트용 mongo
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.21.0'
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring30x:4.21.0'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

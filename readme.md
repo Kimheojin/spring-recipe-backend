@@ -1,7 +1,4 @@
 ## 구현 내용
-
-
-
 ### Mongo DB 관련
 - 무료는 인덱스 3개 까지
 
@@ -31,8 +28,8 @@
 #### autocomplete
 - 동적으로 자동완성 관련
   - 필드값 재료랑 recipeName 가질듯
-
-#### IntegrationSearch
+  
+#### IntegratedSearch
 - 통합검색
 - 필터링 관련
 - 단일 recipe 조회
@@ -57,4 +54,21 @@
 ### 검색 결과 페이지 관련
 
 - 형식화된 구조로 복사 가능하게 만들기
-- 
+
+
+---
+front 올리는 것도 생각해야댐
+
+구현 end point 표시
+
+autocomplete
+- 재료 전용 autocomplete
+- recipeName 전용 auto
+basic search 관련
+- (구현 완료) 전체 조회(object Id 기반 페이징 처리 + count 효율적으로 처리하기)
+- (구현 완료) 단일 조회
+통합 관련
+- 재료 기반 인덱스 사용 통합 검색
+- cooking order 인덱스 사용 통합 검색
+- 레시피 명 기반 인덱스 사용 통합 검색
+- 재료명 filter 처리 인덱스 사용 통합 검색

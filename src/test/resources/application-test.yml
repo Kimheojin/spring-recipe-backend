@@ -1,0 +1,15 @@
+## value 전용
+mongo:
+  collectionName: testCollection
+## 테스트용
+spring:
+  data:
+    mongodb:
+      database: test
+      port: 0
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 6.0.5

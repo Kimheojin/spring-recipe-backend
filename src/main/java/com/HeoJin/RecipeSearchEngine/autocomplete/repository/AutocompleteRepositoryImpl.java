@@ -6,6 +6,7 @@ import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteRecipeNameDto;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-@Profile("!test")
+@Primary
 @RequiredArgsConstructor
 public class AutocompleteRepositoryImpl implements AutocompleteRepository {
 
@@ -41,7 +42,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                                     }
                                 }
                         }
-                        """.formatted(term))),
+                        """.formatted(term))) ,
                 Aggregation.project()
                         .andExpression("""
                         {
