@@ -39,7 +39,9 @@ public class IntegrationSearchRepositoryImpl implements IntegrationSearchReposit
                                     "query": "%s",
                                     "path": "ingredientList"
                                 }
-                        }""".formatted(term))));
+                            }
+                        }""".formatted(term))),
+                Aggregation.limit(10));
         AggregationResults<Recipe> results = mongoTemplate.aggregate(
                 aggregation,
                 collectionName,
@@ -56,14 +58,16 @@ public class IntegrationSearchRepositoryImpl implements IntegrationSearchReposit
 
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.stage(Document.parse("""
-                        {
-                            "$search": {
-                                "index": "recipe_full_search_kr",
-                                "text": {
-                                    "query": "%s",
-                                    "path": "recipeName"
-                                }
-                        }""".formatted(term))));
+                {
+                    "$search": {
+                        "index": "recipe_full_search_kr",
+                        "text": {
+                            "query": "%s",
+                            "path": "recipeName"
+                        }
+                    }
+                }""".formatted(term))),
+                Aggregation.limit(10));
         AggregationResults<Recipe> results = mongoTemplate.aggregate(
                 aggregation,
                 collectionName,
@@ -85,7 +89,9 @@ public class IntegrationSearchRepositoryImpl implements IntegrationSearchReposit
                                     "query": "%s",
                                     "path": "cookingOrderList.instruction"
                                 }
-                        }""".formatted(term))));
+                            }
+                        }""".formatted(term))),
+                Aggregation.limit(10));
         AggregationResults<Recipe> results = mongoTemplate.aggregate(
                 aggregation,
                 collectionName,

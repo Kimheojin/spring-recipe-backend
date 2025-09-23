@@ -21,3 +21,17 @@ GET http://localhost:8080/seo/autocomplete/ingredient?term=팥
 ### autocomplete recipeName 전용
 
 GET http://localhost:8080/seo/autocomplete/recipename?term=된장
+
+### 통합 검색 (재료 기반)
+
+GET http://localhost:8080/seo/ingredient?term=된장
+
+### 통합 검색 (cookingOrderList 기반)
+
+GET http://localhost:8080/seo/cookingorder?term=된장
+
+### 통합 검색 (레시피명 기반)
+
+GET http://localhost:8080/seo/recipename?term=된장
+
+
