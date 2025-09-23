@@ -1,9 +1,7 @@
 package com.HeoJin.RecipeSearchEngine.IntegratedSearch.controller;
 
 
-import com.HeoJin.RecipeSearchEngine.IntegratedSearch.dto.ListSearchCookingOrderDto;
-import com.HeoJin.RecipeSearchEngine.IntegratedSearch.dto.ListSearchIngredientDto;
-import com.HeoJin.RecipeSearchEngine.IntegratedSearch.dto.ListSearchRecipeNameDto;
+import com.HeoJin.RecipeSearchEngine.IntegratedSearch.dto.SearchRecipeListResponseDto;
 import com.HeoJin.RecipeSearchEngine.IntegratedSearch.service.IntegratedSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,32 +21,32 @@ public class IntegratedSearchController {
 
     // 재료 기반 통합 검색
     @GetMapping("/ingredient")
-    public ResponseEntity<ListSearchIngredientDto> integrationIngredientSearch(
+    public ResponseEntity<SearchRecipeListResponseDto> integrationIngredientSearch(
             @RequestParam String term
     ){
 
         // 이거 페이지 처리 해야하나 (기존 쿼리문 재사용 못하나
-        ListSearchIngredientDto ingredientSearchData = integratedSearchService.getIngredientSearchData(term);
+        SearchRecipeListResponseDto ingredientSearchData = integratedSearchService.getIngredientSearchData(term);
         return ResponseEntity.ok(ingredientSearchData);
     }
 
     // cookingOrderlist 기반 검색
     @GetMapping("/cookingorder")
-    public ResponseEntity<ListSearchCookingOrderDto> integrationCookingOrderSearch(
+    public ResponseEntity<SearchRecipeListResponseDto> integrationCookingOrderSearch(
             @RequestParam String term
     )
     {
-        ListSearchCookingOrderDto cookingOrderSearchData = integratedSearchService.getCookingOrderSearchData(term);
+        SearchRecipeListResponseDto cookingOrderSearchData = integratedSearchService.getCookingOrderSearchData(term);
         return ResponseEntity.ok(cookingOrderSearchData);
     }
 
     // 레시피명 기반 통합 검색
     @GetMapping("/recipename")
-    public ResponseEntity<Object> integrationRecipeNameSearch(
+    public ResponseEntity<SearchRecipeListResponseDto> integrationRecipeNameSearch(
             @RequestParam String term
     )
     {
-        ListSearchRecipeNameDto recipeNameSearchData = integratedSearchService.getRecipeNameSearchData(term);
+        SearchRecipeListResponseDto recipeNameSearchData = integratedSearchService.getRecipeNameSearchData(term);
         return ResponseEntity.ok(recipeNameSearchData);
     }
     

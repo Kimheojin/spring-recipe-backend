@@ -14,20 +14,20 @@ public class IntegratedSearchService {
 
     private final IntegrationSearchRepository integrationSearchRepository;
 
-    public ListSearchIngredientDto getIngredientSearchData(String term) {
+    public SearchRecipeListResponseDto getIngredientSearchData(String term) {
 
-        List<SearchIngredientDto> ingredientResult = integrationSearchRepository.getIngredientResult(term);
+        List<SearchRecipeResponseDto> ingredientResult = integrationSearchRepository.getIngredientResult(term);
 
-        return new ListSearchIngredientDto(ingredientResult);
+        return new SearchRecipeListResponseDto(ingredientResult);
     }
 
-    public ListSearchCookingOrderDto getCookingOrderSearchData(String term) {
-        List<SearchCookingOrderDto> cookingOrderResult = integrationSearchRepository.getCookingOrderResult(term);
-        return new ListSearchCookingOrderDto(cookingOrderResult);
+    public SearchRecipeListResponseDto getCookingOrderSearchData(String term) {
+        List<SearchRecipeResponseDto> cookingOrderResult = integrationSearchRepository.getCookingOrderResult(term);
+        return new SearchRecipeListResponseDto(cookingOrderResult);
     }
 
-    public ListSearchRecipeNameDto getRecipeNameSearchData(String term) {
-        List<SearchRecipeNameDto> recipeNameResult = integrationSearchRepository.getRecipeNameResult(term);
-        return new ListSearchRecipeNameDto(recipeNameResult);
+    public SearchRecipeListResponseDto getRecipeNameSearchData(String term) {
+        List<SearchRecipeResponseDto> recipeNameResult = integrationSearchRepository.getRecipeNameResult(term);
+        return new SearchRecipeListResponseDto(recipeNameResult);
     }
 }
