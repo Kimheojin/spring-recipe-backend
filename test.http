@@ -1,0 +1,23 @@
+### 단일 조회 (id 이용한) (완료)
+
+GET http://localhost:8080/seo/basic/recipe?objectId=68c995d7c2e635f0fa551968
+
+### 첫 번쨰 페이지 반환(완료)
+
+GET http://localhost:8080/seo/basic/recipes?page=0&pageSize=10&objectId=
+
+### 두 번쨰 페이지 반환 (완료)
+
+GET http://localhost:8080/seo/basic/recipes?page=1&pageSize=10&objectId=68c995d7c2e635f0fa551971
+
+### 음수 (이거 회의적인 말도 있는 듯, 나중에 문제 생기면 먼저 수정해야 할듯
+
+GET http://localhost:8080/seo/basic/recipes?page=-1&pageSize=10&objectId=68c995d7c2e635f0fa55197b
+
+### autocomplete 재료 전용
+
+GET http://localhost:8080/seo/autocomplete/ingredient?term=팥
+
+### autocomplete recipeName 전용
+
+GET http://localhost:8080/seo/autocomplete/recipename?term=된장
