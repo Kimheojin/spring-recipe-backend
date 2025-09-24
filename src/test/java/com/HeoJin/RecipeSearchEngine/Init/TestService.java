@@ -4,6 +4,7 @@ package com.HeoJin.RecipeSearchEngine.Init;
 import com.HeoJin.RecipeSearchEngine.global.entity.Recipe;
 import com.HeoJin.RecipeSearchEngine.global.entity.cookingOrder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -13,13 +14,15 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 @Profile("test")
 public class TestService {
 
-    private final MongoTemplate mongoTemplate;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     @Value("${mongo.collectionName}")
     private String collectionName;
+
     private static final String[] RECIPE_NAMES = {
         "김치찌개", "된장찌개", "불고기", "갈비찜", "삼겹살구이",
         "파스타", "피자", "햄버거", "치킨", "스테이크",

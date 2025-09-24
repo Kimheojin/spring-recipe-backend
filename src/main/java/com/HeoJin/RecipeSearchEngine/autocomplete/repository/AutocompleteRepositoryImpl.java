@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -54,7 +53,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                                         "regex": "%s"
                                     }
                                 }
-                            }df
+                            }
                         }
                         """.formatted(term)).as("matchingIngredients"),
                 Aggregation.unwind("matchingIngredients"),
