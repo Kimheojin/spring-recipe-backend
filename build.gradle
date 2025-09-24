@@ -38,6 +38,7 @@ dependencies {
 
 	// 테스트용 mongo
 	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.21.0'
+	testCompileOnly 'org.projectlombok:lombok'
 	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring30x:4.21.0'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
