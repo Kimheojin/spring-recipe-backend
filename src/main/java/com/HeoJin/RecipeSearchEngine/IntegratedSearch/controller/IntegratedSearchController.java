@@ -20,7 +20,7 @@ public class IntegratedSearchController {
     // 나중에 동적으로 통합하기
 
     // 재료 기반 통합 검색
-    @GetMapping("/ingredient")
+    @GetMapping("/search/ingredient")
     public ResponseEntity<SearchRecipeListResponseDto> integrationIngredientSearch(
             @RequestParam String term
     ){
@@ -31,7 +31,7 @@ public class IntegratedSearchController {
     }
 
     // cookingOrderlist 기반 검색
-    @GetMapping("/cookingorder")
+    @GetMapping("/search/cookingorder")
     public ResponseEntity<SearchRecipeListResponseDto> integrationCookingOrderSearch(
             @RequestParam String term
     )
@@ -41,7 +41,7 @@ public class IntegratedSearchController {
     }
 
     // 레시피명 기반 통합 검색
-    @GetMapping("/recipename")
+    @GetMapping("/search/recipename")
     public ResponseEntity<SearchRecipeListResponseDto> integrationRecipeNameSearch(
             @RequestParam String term
     )
