@@ -1,0 +1,11 @@
+==== HTTP 요청
+include::{snippets}/{operation}/http-request.adoc[]
+
+==== 쿼리 파라미터
+include::{snippets}/{operation}/query-parameters.adoc[]
+
+==== HTTP 응답
+include::{snippets}/{operation}/http-response.adoc[]
+
+==== 응답 필드
+include::{snippets}/{operation}/response-fields.adoc[]

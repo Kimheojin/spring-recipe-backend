@@ -1,0 +1,14 @@
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+= RecipeSearchEngine API
+
+업데이트 -> ./gradlew test + ./gradlew asciidoctor
+
+== BasicSearch
+
+=== 단일 레시피 조회
+:operation: get-/seo/basic/recipe - single recipe select
+include::api-doc-template.adoc[]
