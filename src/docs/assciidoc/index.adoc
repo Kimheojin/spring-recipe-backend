@@ -12,3 +12,35 @@
 === 단일 레시피 조회
 :operation: get-/seo/basic/recipe - single recipe select
 include::api-doc-template.adoc[]
+
+=== 전체 보기 restDocs
+:operation: get-/seo/basic/recipes - paging recipes select
+include::api-doc-template.adoc[]
+
+== autocomplete Controller
+
+=== 재료명 기반 autocomplete
+:operation: get-/seo/autocomplete/ingredient autocomplete ingredient test
+include::api-doc-template.adoc[]
+=== 레시피명 기반 autocomplete
+:operation: get-/seo/autocomplete/recipename autocomplete recipename test
+include::api-doc-template.adoc[]
+
+
+
+
+
+
+== IntegratedSearch Controller
+
+=== 재료명 기반 통합 조회
+:operation: get-/seo/search/ingredient ingredient based integrated search test
+include::api-doc-template.adoc[]
+
+=== cookingOrderList 기반 통합 초회
+:operation: get-/seo/search/cookingorder cookingorder based integrated search test
+include::api-doc-template.adoc[]
+
+=== 레시피명 기반 통합 초회
+:operation: get-/seo/search/recipename recipename based integrated search test
+include::api-doc-template.adoc[]
