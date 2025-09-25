@@ -5,7 +5,6 @@ import com.HeoJin.RecipeSearchEngine.Init.TestService;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteIngredientDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteRecipeNameDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.repository.AutocompleteRepository;
-import com.mongodb.client.MongoClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
-
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -90,7 +88,7 @@ public class AutocompleteRestDocTest {
 
         // Docs
 
-        testMock.andDo(document("get- /seo/autocomplete/ingredient autocomplete ingredient test",
+        testMock.andDo(document("get-/seo/autocomplete/ingredient autocomplete ingredient test",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 queryParameters(
