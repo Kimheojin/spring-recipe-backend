@@ -1,0 +1,16 @@
+
+services:
+  recipe-seo:
+    build: .
+    container_name: recipe-seo
+    ports:
+      - "3777:3777"
+    environment:
+      # 타임존 설정
+      - TZ=Asia/Seoul
+      # mongo 관련 설저 application-mongo
+    networks:
+      - my-network
+networks:
+  my-network:
+    external: true # 존재 안하면 종료
