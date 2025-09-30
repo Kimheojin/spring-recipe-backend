@@ -71,34 +71,74 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     @Override
     public List<AutocompleteRecipeNameDto> getResultAboutRecipeName(String term) {
 
-
-
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.stage(Document.parse("""
-                        {
-                            "$search": {
-                                "index": "recipeName_autocomplete_kr",
-                                 "autocomplete": {
-                                    "query": "%s",
-                                    "path": "recipeName",
-                                    "tokenOrder": "any"
-                                    }
+        {
+            "$search": {
+                "index": "recipeName_autocomplete_kr",
+                "autocomplete": {
+                    "query": "%s",
+                    "path": "recipeName",
+                    "tokenOrder": "any"
+                },
+                "highlight": {
+                    "path": "recipeName"
+                }
+            }
+        }
+        """.formatted(term))),
+                Aggregation.stage(Document.parse("""
+        {
+            "$project": {
+                "highlights": { "$meta": "searchHighlights" }
+            }
+        }
+        """)),
+                Aggregation.stage(Document.parse("""
+        {
+            "$addFields": {
+                "matchedText": {
+                    "$reduce": {
+                        "input": {
+                            "$reduce": {
+                                "input": "$highlights",
+                                "initialValue": [],
+                                "in": {
+                                    "$concatArrays": [
+                                        "$$value",
+                                        {
+                                            "$filter": {
+                                                "input": "$$this.texts",
+                                                "cond": { "$eq": ["$$this.type", "hit"] }
+                                            }
+                                        }
+                                    ]
                                 }
-                        }
-                        """.formatted(term))),
-                Aggregation.project()
-                                .andExpression("$recipeName").as("recipeName"),
-                Aggregation.group("recipeName"), // 중복 제거
+                            }
+                        },
+                        "initialValue": "",
+                        "in": { "$concat": ["$$value", "$$this.value"] }
+                    }
+                }
+            }
+        }
+        """)),
+                Aggregation.stage(Document.parse("""
+        {
+            "$match": {
+                "matchedText": { "$regex": "^%s", "$options": "i" }
+            }
+        }
+        """.formatted(term))),
+                Aggregation.project().andExpression("$matchedText").as("recipeName"),
+                Aggregation.group("recipeName"),
                 Aggregation.project().andExpression("$_id").as("recipeName"),
                 Aggregation.limit(10)
         );
 
-        AggregationResults<AutocompleteRecipeNameDto> results = mongoTemplate.aggregate(aggregation, collectionName, AutocompleteRecipeNameDto.class);
-
+        AggregationResults<AutocompleteRecipeNameDto> results
+                = mongoTemplate.aggregate(aggregation, collectionName, AutocompleteRecipeNameDto.class);
 
         return results.getMappedResults();
-
-
-
     }
 }
