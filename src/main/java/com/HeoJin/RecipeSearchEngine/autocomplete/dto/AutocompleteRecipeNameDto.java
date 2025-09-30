@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AutocompleteRecipeNameDto {
     private String recipeName;
-    private Double score;
+    private double score;
 }
