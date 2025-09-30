@@ -24,9 +24,8 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     @Value("${mongo.collectionName}")
     private String collectionName;
 
-
-    // 재료 기반 개느림
-    // ingredientList 따로 전처리 해서 하는 식으로 리팩토링 해야할듯
+    // 재료기반 -> 단어 매핑을 목적으로 생각하자
+    // count 생각 안해도 될듯
     @Override
     public List<AutocompleteIngredientDto> getResultAboutIngredient(String term) {
         Aggregation aggregation = Aggregation.newAggregation(
@@ -50,7 +49,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                                 "cond": {
                                     "$regexMatch": {
                                         "input": "$$this",
-                                        "regex": "%s"
+                                        "regex": "^%s"
                                     }
                                 }
                             }
