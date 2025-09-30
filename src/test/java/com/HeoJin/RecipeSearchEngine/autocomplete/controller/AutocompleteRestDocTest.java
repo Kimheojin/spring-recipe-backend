@@ -73,7 +73,7 @@ public class AutocompleteRestDocTest {
         List<AutocompleteIngredientDto> mockResults = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            mockResults.add(new AutocompleteIngredientDto("토마토" + " " +  i));
+            mockResults.add(new AutocompleteIngredientDto("토마토" + " " +  i, i));
         }
 
         when(autocompleteRepository.getResultAboutIngredient("토마토"))
@@ -96,7 +96,8 @@ public class AutocompleteRestDocTest {
                 ),
                 responseFields(
                     fieldWithPath("autocompleteDtoList").description("자동완성 결과 리스트"),
-                    fieldWithPath("autocompleteDtoList[].ingredient").description("자동완성된 재료명")
+                    fieldWithPath("autocompleteDtoList[].ingredient").description("자동완성된 재료명"),
+                    fieldWithPath("autocompleteDtoList[].score").description("score 값")
                 )));
     }
     @Test
@@ -108,7 +109,7 @@ public class AutocompleteRestDocTest {
         List<AutocompleteRecipeNameDto> mockResults = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            mockResults.add(new AutocompleteRecipeNameDto("고구마맛 토마토 + 1"));
+            mockResults.add(new AutocompleteRecipeNameDto("고구마맛 토마토 + 1", i));
         }
 
         when(autocompleteRepository.getResultAboutRecipeName("고구마"))
@@ -130,7 +131,8 @@ public class AutocompleteRestDocTest {
                 ),
                 responseFields(
                         fieldWithPath("autocompleteRecipeNameDtoList").description("자동완성 결과 리스트"),
-                        fieldWithPath("autocompleteRecipeNameDtoList[].recipeName").description("자동완성된 레시피 이름")
+                        fieldWithPath("autocompleteRecipeNameDtoList[].recipeName").description("자동완성된 레시피 이름"),
+                        fieldWithPath("autocompleteRecipeNameDtoList[].score").description("score 값")
                 )));
     }
 
