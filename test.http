@@ -1,37 +1,38 @@
 ### 단일 조회 (id 이용한) (완료)
 
-GET http://localhost:8080/seo/basic/recipe?objectId=68c995d7c2e635f0fa551968
+GET http://localhost:3777/seo/basic/recipe?objectId=68c995d7c2e635f0fa551968
 
 ### 첫 번쨰 페이지 반환(완료)
 
-GET http://localhost:8080/seo/basic/recipes?page=0&pageSize=10&objectId=
+GET http://localhost:3777/seo/basic/recipes?page=0&pageSize=10&objectId=
 
 ### 두 번쨰 페이지 반환 (완료)
 
-GET http://localhost:8080/seo/basic/recipes?page=1&pageSize=10&objectId=68c995d7c2e635f0fa551971
+GET http://localhost:3777/seo/basic/recipes?page=1&pageSize=10&objectId=68c995d7c2e635f0fa551971
 
 ### 음수 (이거 회의적인 말도 있는 듯, 나중에 문제 생기면 먼저 수정해야 할듯
 
-GET http://localhost:8080/seo/basic/recipes?page=-1&pageSize=10&objectId=68c995d7c2e635f0fa55197b
+GET http://localhost:3777/seo/basic/recipes?page=-1&pageSize=10&objectId=68c995d7c2e635f0fa55197b
 
 ### autocomplete 재료 전용
 
-GET http://localhost:8080/seo/autocomplete/ingredient?term=팥
+GET http://localhost:3777/seo/autocomplete/ingredient?term=팥
 
 ### autocomplete recipeName 전용
 
-GET http://localhost:8080/seo/autocomplete/recipename?term=된장
+GET http://localhost:3777/seo/autocomplete/recipename?term=된장
 
 ### 통합 검색 (재료 기반)
 
-GET http://localhost:8080/seo/search/ingredient?term=된장
+GET http://localhost:3777/seo/search/ingredient?term=된장
 
 ### 통합 검색 (cookingOrderList 기반)
 
-GET http://localhost:8080/seo/search/cookingorder?term=된장
+GET http://localhost:3777/seo/search/cookingorder?term=된장
 
 ### 통합 검색 (레시피명 기반)
 
-GET http://localhost:8080/seo/search/recipename?term=된장
+GET http://localhost:3777/seo/search/recipename?term=된장
+
 
 
