@@ -36,7 +36,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                                  "autocomplete": {
                                     "query": "%s",
                                     "path": "ingredientList",
-                                    "tokenOrder": "sequential"
+                                    "tokenOrder": "any"
                                     }
                                 }
                         }
@@ -81,7 +81,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                                  "autocomplete": {
                                     "query": "%s",
                                     "path": "recipeName",
-                                    "tokenOrder": "sequential"
+                                    "tokenOrder": "any"
                                     }
                                 }
                         }
