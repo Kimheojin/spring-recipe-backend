@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AutocompleteIngredientDto {
     private String ingredient;
+    private Double score; // 높은게 좋음
 }

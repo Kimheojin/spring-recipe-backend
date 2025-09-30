@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -30,109 +31,138 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     public List<AutocompleteIngredientDto> getResultAboutIngredient(String term) {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.stage(Document.parse("""
-                        {
-                            "$search": {
-                                "index": "ingredient_autocomplete_kr",
-                                 "autocomplete": {
-                                    "query": "%s",
-                                    "path": "ingredientList",
-                                    "tokenOrder": "any"
-                                    }
+                    {
+                        "$search": {
+                            "index": "ingredient_autocomplete_kr",
+                             "autocomplete": {
+                                "query": "%s",
+                                "path": "ingredientList",
+                                "tokenOrder": "any"
                                 }
+                            }
+                    }
+                    """.formatted(term))),
+                Aggregation.stage(Document.parse("""
+                    {
+                        "$addFields": {
+                            "score": { "$meta": "searchScore" }
                         }
-                        """.formatted(term))) ,
+                    }
+                    """)),
                 Aggregation.project()
                         .andExpression("""
-                        {
-                            "$filter": {
-                                "input": "$ingredientList",
-                                "cond": {
-                                    "$regexMatch": {
-                                        "input": "$$this",
-                                        "regex": "^%s"
-                                    }
+                    {
+                        "$filter": {
+                            "input": "$ingredientList",
+                            "cond": {
+                                "$regexMatch": {
+                                    "input": "$$this",
+                                    "regex": "^%s"
                                 }
                             }
                         }
-                        """.formatted(term)).as("matchingIngredients"),
+                    }
+                    """.formatted(term)).as("matchingIngredients")
+                        .and("score").as("score"),
                 Aggregation.unwind("matchingIngredients"),
-                Aggregation.project().andExpression("$matchingIngredients").as("ingredient"),
-                Aggregation.group("ingredient"),
-                Aggregation.project().andExpression("$_id").as("ingredient"),// 중복 제거
+                Aggregation.project()
+                        .andExpression("$matchingIngredients").as("ingredient")
+                        .and("score").as("score"),
+                Aggregation.group("ingredient")
+                        .max("score").as("score"),
+                Aggregation.project()
+                        .andExpression("$_id").as("ingredient")
+                        .and("score").as("score"),
+                Aggregation.sort(Sort.by(Sort.Direction.DESC, "score")),
                 Aggregation.limit(10)
         );
-        AggregationResults<AutocompleteIngredientDto> results = mongoTemplate.aggregate(aggregation, collectionName, AutocompleteIngredientDto.class);
 
+        AggregationResults<AutocompleteIngredientDto> results =
+                mongoTemplate.aggregate(aggregation, collectionName, AutocompleteIngredientDto.class);
 
-        return results.getMappedResults(); // list 형태로 반환
-
+        return results.getMappedResults();
     }
 
+    // recipe name 데이터가 더러워서 이렇게 하는 게 맞을듯
     @Override
     public List<AutocompleteRecipeNameDto> getResultAboutRecipeName(String term) {
-
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.stage(Document.parse("""
-        {
-            "$search": {
-                "index": "recipeName_autocomplete_kr",
-                "autocomplete": {
-                    "query": "%s",
-                    "path": "recipeName",
-                    "tokenOrder": "any"
-                },
-                "highlight": {
-                    "path": "recipeName"
-                }
-            }
-        }
-        """.formatted(term))),
-                Aggregation.stage(Document.parse("""
-        {
-            "$project": {
-                "highlights": { "$meta": "searchHighlights" }
-            }
-        }
-        """)),
-                Aggregation.stage(Document.parse("""
-        {
-            "$addFields": {
-                "matchedText": {
-                    "$reduce": {
-                        "input": {
-                            "$reduce": {
-                                "input": "$highlights",
-                                "initialValue": [],
-                                "in": {
-                                    "$concatArrays": [
-                                        "$$value",
-                                        {
-                                            "$filter": {
-                                                "input": "$$this.texts",
-                                                "cond": { "$eq": ["$$this.type", "hit"] }
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "initialValue": "",
-                        "in": { "$concat": ["$$value", "$$this.value"] }
+            {
+                "$search": {
+                    "index": "recipeName_autocomplete_kr",
+                    "autocomplete": {
+                        "query": "%s",
+                        "path": "recipeName",
+                        "tokenOrder": "any"
+                    },
+                    "highlight": {
+                        "path": "recipeName"
                     }
                 }
             }
-        }
-        """)),
+            """.formatted(term))),
                 Aggregation.stage(Document.parse("""
-        {
-            "$match": {
-                "matchedText": { "$regex": "^%s", "$options": "i" }
+            {
+                "$addFields": {
+                    "score": { "$meta": "searchScore" }
+                }
             }
-        }
-        """.formatted(term))),
-                Aggregation.project().andExpression("$matchedText").as("recipeName"),
-                Aggregation.group("recipeName"),
-                Aggregation.project().andExpression("$_id").as("recipeName"),
+            """)),
+                Aggregation.stage(Document.parse("""
+            {
+                "$project": {
+                    "highlights": { "$meta": "searchHighlights" },
+                    "score": 1
+                }
+            }
+            """)),
+                // 기존 matchedText 추출 로직...
+                Aggregation.stage(Document.parse("""
+            {
+                "$addFields": {
+                    "matchedText": {
+                        "$reduce": {
+                            "input": {
+                                "$reduce": {
+                                    "input": "$highlights",
+                                    "initialValue": [],
+                                    "in": {
+                                        "$concatArrays": [
+                                            "$$value",
+                                            {
+                                                "$filter": {
+                                                    "input": "$$this.texts",
+                                                    "cond": { "$eq": ["$$this.type", "hit"] }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            "initialValue": "",
+                            "in": { "$concat": ["$$value", "$$this.value"] }
+                        }
+                    }
+                }
+            }
+            """)),
+                Aggregation.stage(Document.parse("""
+            {
+                "$match": {
+                    "matchedText": { "$regex": "^%s", "$options": "i" }
+                }
+            }
+            """.formatted(term))),
+                Aggregation.project()
+                        .andExpression("$matchedText").as("recipeName")
+                        .and("score").as("score"),
+                Aggregation.group("recipeName")
+                        .max("score").as("score"),
+                Aggregation.project()
+                        .andExpression("$_id").as("recipeName")
+                        .and("score").as("score"),
+                Aggregation.sort(Sort.by(Sort.Direction.DESC, "score")),
                 Aggregation.limit(10)
         );
 
