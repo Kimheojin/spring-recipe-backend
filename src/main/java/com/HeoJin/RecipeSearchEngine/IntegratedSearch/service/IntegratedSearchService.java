@@ -1,12 +1,10 @@
 package com.HeoJin.RecipeSearchEngine.IntegratedSearch.service;
 
 
-import com.HeoJin.RecipeSearchEngine.IntegratedSearch.dto.*;
+import com.HeoJin.RecipeSearchEngine.IntegratedSearch.dto.SearchRecipeListResponseDto;
 import com.HeoJin.RecipeSearchEngine.IntegratedSearch.repository.IntegrationSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
