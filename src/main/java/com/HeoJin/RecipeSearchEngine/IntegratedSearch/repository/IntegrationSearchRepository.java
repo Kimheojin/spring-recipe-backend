@@ -1,11 +1,9 @@
 package com.HeoJin.RecipeSearchEngine.IntegratedSearch.repository;
 
-import com.HeoJin.RecipeSearchEngine.IntegratedSearch.dto.SearchRecipeResponseDto;
-
-import java.util.List;
+import com.HeoJin.RecipeSearchEngine.IntegratedSearch.dto.SearchRecipeListResponseDto;
 
 public interface IntegrationSearchRepository {
-    List<SearchRecipeResponseDto> getIngredientResult(String term);
-    List<SearchRecipeResponseDto> getRecipeNameResult(String term);
-    List<SearchRecipeResponseDto> getCookingOrderResult(String term);
+    SearchRecipeListResponseDto getIngredientResult(int page, int pageSize, String term);
+    SearchRecipeListResponseDto getRecipeNameResult(int page, int pageSize, String term);
+    SearchRecipeListResponseDto getCookingOrderResult(int page, int pageSize, String term);
 }

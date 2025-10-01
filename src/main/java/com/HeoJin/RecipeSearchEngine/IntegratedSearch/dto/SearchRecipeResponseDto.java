@@ -20,13 +20,14 @@ public class SearchRecipeResponseDto {
     private String recipeName;
     private String sourceUrl;
     private String siteIndex;
+    private double score;
 
     @Builder.Default
     private List<SearchCookingOrderDto> cookingOrderList = new ArrayList<>();
     @Builder.Default
     private List<String> ingredientList = new ArrayList<>();
 
-    public static SearchRecipeResponseDto from(Recipe recipe) {
+    public static SearchRecipeResponseDto from(Recipe recipe, double score) {
         return SearchRecipeResponseDto.builder()
                 .objectId(recipe.getId())
                 .recipeName(recipe.getRecipeName())
@@ -39,6 +40,7 @@ public class SearchRecipeResponseDto {
                 .sourceUrl(recipe.getSourceUrl())
                 .siteIndex(recipe.getSiteIndex())
                 .ingredientList(recipe.getIngredientList())
+                .score(score)
                 .build();
     }
 }
