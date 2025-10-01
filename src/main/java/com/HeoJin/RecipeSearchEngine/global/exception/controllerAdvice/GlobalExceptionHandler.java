@@ -1,10 +1,9 @@
 package com.HeoJin.RecipeSearchEngine.global.exception.controllerAdvice;
 
 
-import com.HeoJin.RecipeSearchEngine.global.exception.mongo.CustomMongoException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import com.HeoJin.RecipeSearchEngine.global.exception.dto.ErrorResponse;
+import com.HeoJin.RecipeSearchEngine.global.exception.mongo.CustomMongoException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

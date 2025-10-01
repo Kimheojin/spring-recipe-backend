@@ -32,6 +32,8 @@ public class IntegrationSearchRepositoryImpl implements IntegrationSearchReposit
     public SearchRecipeListResponseDto getIngredientResult(int page, int pageSize, String term) {
 
         // 전체 데이터 갯수
+        // 이거 근데 너무 비 효율적인데
+        // 나중에 엔드포인트 분리하고 캐싱하기
         Aggregation countAggregation = Aggregation.newAggregation(
                 Aggregation.stage(Document.parse("""
                 {
