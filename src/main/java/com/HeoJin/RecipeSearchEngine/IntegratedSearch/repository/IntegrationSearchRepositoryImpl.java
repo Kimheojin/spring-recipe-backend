@@ -27,7 +27,6 @@ public class IntegrationSearchRepositoryImpl implements IntegrationSearchReposit
     private String collectionName;
     // 페이징 처리 + score 활용해 정렬 + 총 count 추 반환
 
-    // 페이징 나중에 생각하기
     // 재료 전용
     @Override
     public SearchRecipeListResponseDto getIngredientResult(int page, int pageSize, String term) {
@@ -58,7 +57,7 @@ public class IntegrationSearchRepositoryImpl implements IntegrationSearchReposit
         int totalCount = 0;
         if (!countResults.getMappedResults().isEmpty()) {
             Document countDoc = countResults.getMappedResults().get(0);
-            totalCount = countDoc.get("count", Document.class).getInteger("total");
+            totalCount = countDoc.get("count", Document.class).getLong("total").intValue();
         }
 
         // 페이징
@@ -125,7 +124,7 @@ public class IntegrationSearchRepositoryImpl implements IntegrationSearchReposit
         int totalCount = 0;
         if (!countResults.getMappedResults().isEmpty()) {
             Document countDoc = countResults.getMappedResults().get(0);
-            totalCount = countDoc.get("count", Document.class).getInteger("total");
+            totalCount = countDoc.get("count", Document.class).getLong("total").intValue();
         }
 
         // 페이징
@@ -193,7 +192,7 @@ public class IntegrationSearchRepositoryImpl implements IntegrationSearchReposit
         int totalCount = 0;
         if (!countResults.getMappedResults().isEmpty()) {
             Document countDoc = countResults.getMappedResults().get(0);
-            totalCount = countDoc.get("count", Document.class).getInteger("total");
+            totalCount = countDoc.get("count", Document.class).getLong("total").intValue();
         }
 
         // 페이징
