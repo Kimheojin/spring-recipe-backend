@@ -1,6 +1,7 @@
 package com.HeoJin.RecipeSearchEngine.basicSearch.service;
 
 
+import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeCountDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeListResponseDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeResponseDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.repository.RecipeBasicRepository;
@@ -38,5 +39,9 @@ public class RecipeBasicService {
     }
 
 
+    public RecipeCountDto getRecipeCount() {
+
+        return recipeBasicRepository.getRecipeCount();
+    }
 }
 

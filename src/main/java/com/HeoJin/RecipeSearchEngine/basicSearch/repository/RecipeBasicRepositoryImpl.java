@@ -1,6 +1,7 @@
 package com.HeoJin.RecipeSearchEngine.basicSearch.repository;
 
 
+import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeCountDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeResponseDto;
 import com.HeoJin.RecipeSearchEngine.global.entity.Recipe;
 import lombok.RequiredArgsConstructor;
@@ -90,6 +91,20 @@ public class RecipeBasicRepositoryImpl implements RecipeBasicRepository {
         return recipes.stream()
                 .map(RecipeResponseDto::from)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public RecipeCountDto getRecipeCount() {
+
+
+        Query query = new Query();
+        // mongo pk 인덱스 가볍지 않나,,?
+        // 나중에 최적화 하기
+        query.withHint("_id_");
+        long count = mongoTemplate.count(query, Recipe.class, collectionName);
+        return RecipeCountDto.builder()
+                .recipeCount(count)
+                .build();
     }
 
 

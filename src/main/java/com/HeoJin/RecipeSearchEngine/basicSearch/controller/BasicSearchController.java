@@ -1,6 +1,7 @@
 package com.HeoJin.RecipeSearchEngine.basicSearch.controller;
 
 
+import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeCountDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeListResponseDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeResponseDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.service.RecipeBasicService;
@@ -32,6 +33,12 @@ public class BasicSearchController {
             @RequestParam(defaultValue = "") String objectId // 기준
     ) {
         return ResponseEntity.ok(recipeBasicService.getPageRecipe(page, pageSize, objectId));
+    }
+
+    // 전체 데이터 갯수 확인용 엔드 포인트
+    @GetMapping("/basic/recipescount")
+    public ResponseEntity<RecipeCountDto> getCount(){
+        return ResponseEntity.ok(recipeBasicService.getRecipeCount());
     }
 
 

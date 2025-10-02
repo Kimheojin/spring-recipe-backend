@@ -1,6 +1,7 @@
 package com.HeoJin.RecipeSearchEngine.basicSearch.repository;
 
 
+import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeCountDto;
 import com.HeoJin.RecipeSearchEngine.basicSearch.dto.RecipeResponseDto;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface RecipeBasicRepository {
 
     // 다음 페이지 용
     List<RecipeResponseDto> getGtPageRecipe(int page, int pageSize,  String objectId);
+
+    RecipeCountDto getRecipeCount();
 }
