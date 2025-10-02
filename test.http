@@ -34,5 +34,9 @@ GET http://localhost:3777/seo/search/cookingorder?page=1&pageSize=10&term=된장
 
 GET http://localhost:3777/seo/search/recipename?page=2&pageSize=10&term=된장
 
+### 전체 레시피 갯수 조회
+
+GET http://localhost:3777/seo/basic/recipescount
+
 
 

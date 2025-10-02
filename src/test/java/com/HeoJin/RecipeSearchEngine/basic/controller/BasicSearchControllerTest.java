@@ -125,4 +125,26 @@ public class BasicSearchControllerTest {
                         fieldWithPath("recipes[].cookingOrderList[].instruction").description("조리 설명")
                 )));
     }
+
+    @Test
+    @DisplayName("전체 recipe count 로직")
+    void test3() throws Exception {
+        // given
+
+        // when + then
+        ResultActions testMock = mockMvc.perform(get("/seo/basic/recipescount")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        // docs
+
+        testMock.andDo(document("get-/seo/basic/recipescount - whole recipe count",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                responseFields(
+                     fieldWithPath("recipeCount").description("전체 레시피 갯수")
+                )));
+    }
 }
