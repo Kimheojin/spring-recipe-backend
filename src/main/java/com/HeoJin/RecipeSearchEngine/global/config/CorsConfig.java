@@ -12,7 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/seo/**")
                 .allowCredentials(true)
-                .allowedOrigins("http://localhost:1000", "http://localhost:5173")
+                .allowedOrigins("http://localhost:1000", "https://recipefinder-hj.vercel.app/")
                 .allowedHeaders("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .maxAge(3600);
