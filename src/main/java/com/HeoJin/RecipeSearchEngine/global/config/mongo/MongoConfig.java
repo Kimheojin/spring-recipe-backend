@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 
 @Configuration
-@Profile("!test")
+@Profile("!test") // 테스트 상황 비활성화
 public class MongoConfig {
 
     @Value("${spring.data.mongodb.uri}")

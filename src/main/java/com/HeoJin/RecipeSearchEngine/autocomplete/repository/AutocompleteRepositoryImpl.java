@@ -19,6 +19,7 @@ import java.util.List;
 @Primary
 @RequiredArgsConstructor
 public class AutocompleteRepositoryImpl implements AutocompleteRepository {
+    // 이거 빈도수도 한번 생각해 보는 것도 좋을듯
 
     private final MongoTemplate mongoTemplate;
 
