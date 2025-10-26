@@ -3,13 +3,5 @@ server:
 
 spring:
   profiles:
-    active: mongo
+    active: mongo, mysql, oauth2
 ---
-
-## jpa,등등 orm 제외
-## (의존성 문제 생기면 먼저 보기)
-spring:
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration

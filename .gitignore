@@ -39,4 +39,5 @@ out/
 ### custom ###
 application-mongo.yml
 application-mysql.yml
+application-oauth2.yml
 deploy.http
