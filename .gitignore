@@ -37,6 +37,6 @@ out/
 .vscode/
 
 ### custom ###
-application-mongo.yml
+application-local.yml
 application-oauth2.yml
 deploy.http

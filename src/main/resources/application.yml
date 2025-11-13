@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: mongo
+    active: local
 ---
 
 ## jpa,등등 orm 제외
