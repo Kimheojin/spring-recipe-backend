@@ -11,11 +11,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.util.List;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
@@ -25,6 +28,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -63,6 +67,11 @@ public class BasicSearchControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .queryParam("objectId", id))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.objectId").value(id))
+                .andExpect(jsonPath("$.recipeName").value(testRecipe.getRecipeName()))
+                .andExpect(jsonPath("$.sourceUrl").value(testRecipe.getSourceUrl()))
+                .andExpect(jsonPath("$.ingredientList").isArray())
+                .andExpect(jsonPath("$.cookingOrderList").isArray())
                 .andDo(print());
 
         // docs
@@ -91,6 +100,10 @@ public class BasicSearchControllerTest {
     @DisplayName("전체 보기  RestDoc Test")
     void test2() throws Exception {
         // given
+        Query firstPageQuery = new Query()
+                .with(Sort.by(Sort.Direction.ASC, "_id"))
+                .limit(3);
+        List<Recipe> expectedRecipes = mongoTemplate.find(firstPageQuery, Recipe.class, collectionName);
 
         // when + then
         ResultActions testMock = mockMvc.perform(get("/seo/basic/recipes")
@@ -100,6 +113,9 @@ public class BasicSearchControllerTest {
                         .queryParam("objectId", "")
                 )
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recipes").isArray())
+                .andExpect(jsonPath("$.recipes.length()").value(expectedRecipes.size()))
+                .andExpect(jsonPath("$.recipes[0].objectId").value(expectedRecipes.get(0).getId()))
                 .andDo(print());
 
         // docs
@@ -130,12 +146,14 @@ public class BasicSearchControllerTest {
     @DisplayName("전체 recipe count 로직")
     void test3() throws Exception {
         // given
+        long expectedCount = mongoTemplate.count(new Query(), Recipe.class, collectionName);
 
         // when + then
         ResultActions testMock = mockMvc.perform(get("/seo/basic/recipescount")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recipeCount").value((int) expectedCount))
                 .andDo(print());
 
         // docs

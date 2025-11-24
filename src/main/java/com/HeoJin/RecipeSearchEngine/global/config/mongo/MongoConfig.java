@@ -14,13 +14,15 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 @Configuration
 @Profile("!test") // 테스트 상황 비활성화
 public class MongoConfig {
-
     @Value("${spring.data.mongodb.uri}")
     private String mongoUri;
 
     @Value("${spring.data.mongodb.database}")
     private String databaseName;
 
+    //MongoTemplate
+    //   -> MongoDatabaseFactory
+    //       -> MongoClient
 
     @Bean
     public MongoClient mongoClient() {

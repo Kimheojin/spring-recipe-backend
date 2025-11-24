@@ -32,6 +32,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -84,6 +85,9 @@ public class AutocompleteRestDocTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .queryParam("term", testTerm))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.autocompleteDtoList").isArray())
+                .andExpect(jsonPath("$.autocompleteDtoList.length()").value(mockResults.size()))
+                .andExpect(jsonPath("$.autocompleteDtoList[0].ingredient").value(mockResults.get(0).getIngredient()))
                 .andDo(print());
 
         // Docs
@@ -109,7 +113,7 @@ public class AutocompleteRestDocTest {
         List<AutocompleteRecipeNameDto> mockResults = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            mockResults.add(new AutocompleteRecipeNameDto("고구마맛 토마토 + 1", i));
+            mockResults.add(new AutocompleteRecipeNameDto("고구마맛 토마토 + " + i, i));
         }
 
         when(autocompleteRepository.getResultAboutRecipeName("고구마"))
@@ -120,6 +124,9 @@ public class AutocompleteRestDocTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .queryParam("term", testTerm))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.autocompleteRecipeNameDtoList").isArray())
+                .andExpect(jsonPath("$.autocompleteRecipeNameDtoList.length()").value(mockResults.size()))
+                .andExpect(jsonPath("$.autocompleteRecipeNameDtoList[0].recipeName").value(mockResults.get(0).getRecipeName()))
                 .andDo(print());
 
         // Docs

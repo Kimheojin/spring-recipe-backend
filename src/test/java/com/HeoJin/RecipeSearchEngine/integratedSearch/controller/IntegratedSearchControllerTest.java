@@ -57,7 +57,7 @@ public class IntegratedSearchControllerTest {
     private IntegrationSearchRepository integrationSearchRepository;
 
 
-    private static SearchRecipeListResponseDto mockResult;
+    private SearchRecipeListResponseDto mockResult;
 
     @BeforeEach
     void init() {
@@ -65,21 +65,18 @@ public class IntegratedSearchControllerTest {
         if (mongoTemplate.count(new Query(), collectionName) == 0) {
             testService.insertInitData();
         }
-        // 이 부분 변경해야 할 듯
-        if (mockResult == null) {
-            List<SearchRecipeResponseDto> cmp = mongoTemplate.find(new Query(), Recipe.class, collectionName)
-                .stream()
-                .limit(10)
-                .map(recipe -> SearchRecipeResponseDto.from(recipe, 0.0))
-                .collect(Collectors.toList());
+        List<SearchRecipeResponseDto> cmp = mongoTemplate.find(new Query(), Recipe.class, collectionName)
+            .stream()
+            .limit(10)
+            .map(recipe -> SearchRecipeResponseDto.from(recipe, 0.0))
+            .collect(Collectors.toList());
 
-            mockResult = SearchRecipeListResponseDto.builder()
-                    .totalPages(10)
-                    .totalPages(1)
-                    .currentPage(1)
-                    .pageSize(10)
-                    .recipes(cmp).build();
-        }
+        mockResult = SearchRecipeListResponseDto.builder()
+                .totalCount(cmp.size())
+                .totalPages(1)
+                .currentPage(1)
+                .pageSize(10)
+                .recipes(cmp).build();
     }
 
     @Test
