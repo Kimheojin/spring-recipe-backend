@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class IntegrationSearchRepositoryImpl implements IntegrationSearchRepository {
 
+    private static final String SEARCH_INDEX_NAME = "recipe_full_search_kr";
+    private static final double DEFAULT_SCORE = 0.0;
+
     private final MongoTemplate mongoTemplate;
 
     @Value("${mongo.collectionName}")
@@ -31,210 +34,134 @@ public class IntegrationSearchRepositoryImpl implements IntegrationSearchReposit
     @Override
     public SearchRecipeListResponseDto getIngredientResult(int page, int pageSize, String term) {
 
-        // 전체 데이터 갯수
-        // 이거 근데 너무 비 효율적인데
-        // 나중에 엔드포인트 분리하고 캐싱하기
-        Aggregation countAggregation = Aggregation.newAggregation(
-                Aggregation.stage(Document.parse("""
-                {
-                    "$searchMeta": {
-                        "index": "recipe_full_search_kr",
-                        "text": {
-                            "query": "%s",
-                            "path": "ingredientList"
-                        },
-                        "count": {
-                            "type": "total"
-                        }
-                    }
-                }""".formatted(term)))
-        );
-
         AggregationResults<Document> countResults = mongoTemplate.aggregate(
-                countAggregation,
+                buildCountAggregation("ingredientList", term),
                 collectionName,
                 Document.class
         );
-
-        int totalCount = 0;
-        if (!countResults.getMappedResults().isEmpty()) {
-            Document countDoc = countResults.getMappedResults().get(0);
-            totalCount = countDoc.get("count", Document.class).getLong("total").intValue();
-        }
+        int totalCount = extractTotalCount(countResults);
 
         // 페이징
         int skip = (page - 1) * pageSize;
 
-        Aggregation dataAggregation = Aggregation.newAggregation(
-                Aggregation.stage(Document.parse("""
-                    {
-                        "$search": {
-                            "index": "recipe_full_search_kr",
-                            "text": {
-                                "query": "%s",
-                                "path": "ingredientList"
-                            }
-                        }
-                    }""".formatted(term))),
-                Aggregation.skip(skip),
-                Aggregation.limit(pageSize)
-        );
-
         AggregationResults<Recipe> results = mongoTemplate.aggregate(
-                dataAggregation,
+                buildDataAggregation("ingredientList", term, skip, pageSize),
                 collectionName,
                 Recipe.class
         );
 
-        List<SearchRecipeResponseDto> recipes = results.getMappedResults().stream()
-                .map(recipe -> SearchRecipeResponseDto.from(recipe, 0.0))
-                .collect(Collectors.toList());
+        List<SearchRecipeResponseDto> recipes = mapRecipes(results);
 
-        return SearchRecipeListResponseDto.builder()
-                .recipes(recipes)
-                .totalCount(totalCount)
-                .currentPage(page)
-                .pageSize(pageSize)
-                .totalPages((int) Math.ceil((double) totalCount / pageSize)) // 올림
-                .build();
+        return buildResponse(recipes, page, pageSize, totalCount);
     }
 
     @Override
     public SearchRecipeListResponseDto getRecipeNameResult(int page, int pageSize, String term) {
 
-        // 전체 데이터 갯수
-        Aggregation countAggregation = Aggregation.newAggregation(
-                Aggregation.stage(Document.parse("""
-                    {
-                        "$searchMeta": {
-                            "index": "recipe_full_search_kr",
-                            "text": {
-                                "query": "%s",
-                                "path": "recipeName"
-                            },
-                            "count": {
-                                "type": "total"
-                            }
-                        }
-                    }""".formatted(term))));
         AggregationResults<Document> countResults = mongoTemplate.aggregate(
-                countAggregation,
+                buildCountAggregation("recipeName", term),
                 collectionName,
                 Document.class
         );
 
-        int totalCount = 0;
-        if (!countResults.getMappedResults().isEmpty()) {
-            Document countDoc = countResults.getMappedResults().get(0);
-            totalCount = countDoc.get("count", Document.class).getLong("total").intValue();
-        }
+        int totalCount = extractTotalCount(countResults);
 
         // 페이징
         int skip = (page - 1) * pageSize;
 
-        Aggregation dataAggregation = Aggregation.newAggregation(
-                Aggregation.stage(Document.parse("""
-                    {
-                        "$search": {
-                            "index": "recipe_full_search_kr",
-                            "text": {
-                                "query": "%s",
-                                "path": "recipeName"
-                            }
-                        }
-                    }""".formatted(term))),
-                Aggregation.skip(skip),
-                Aggregation.limit(pageSize)
-        );
-
         AggregationResults<Recipe> results = mongoTemplate.aggregate(
-                dataAggregation,
+                buildDataAggregation("recipeName", term, skip, pageSize),
                 collectionName,
                 Recipe.class
         );
 
-        List<SearchRecipeResponseDto> recipes = results.getMappedResults().stream()
-                .map(recipe -> SearchRecipeResponseDto.from(recipe, 0.0))
-                .collect(Collectors.toUnmodifiableList());
+        List<SearchRecipeResponseDto> recipes = mapRecipes(results);
 
-        return SearchRecipeListResponseDto.builder()
-                .recipes(recipes)
-                .totalCount(totalCount)
-                .currentPage(page)
-                .pageSize(pageSize)
-                .totalPages((int) Math.ceil((double) totalCount/pageSize))
-                .build();
+        return buildResponse(recipes, page, pageSize, totalCount);
 
     }
 
     @Override
     public SearchRecipeListResponseDto getCookingOrderResult(int page, int pageSize, String term) {
 
-        Aggregation countAggregation = Aggregation.newAggregation(
-                Aggregation.stage(Document.parse("""
-                    {
-                        "$searchMeta": {
-                            "index": "recipe_full_search_kr",
-                            "text": {
-                                "query": "%s",
-                                "path": "cookingOrderList.instruction"
-                            },
-                            "count": {
-                                "type": "total"
-                            }
-                        }
-                    }""".formatted(term))));
-
         AggregationResults<Document> countResults = mongoTemplate.aggregate(
-                countAggregation,
+                buildCountAggregation("cookingOrderList.instruction", term),
                 collectionName,
                 Document.class
         );
 
-        int totalCount = 0;
-        if (!countResults.getMappedResults().isEmpty()) {
-            Document countDoc = countResults.getMappedResults().get(0);
-            totalCount = countDoc.get("count", Document.class).getLong("total").intValue();
-        }
+        int totalCount = extractTotalCount(countResults);
 
         // 페이징
         int skip = (page -1) * pageSize;
 
-        Aggregation dataAggregation = Aggregation.newAggregation(
-                Aggregation.stage(Document.parse("""
-                    {
-                        "$search": {
-                            "index": "recipe_full_search_kr",
-                            "text": {
-                                "query": "%s",
-                                "path": "cookingOrderList.instruction"
-                            }
-                        }
-                    }""".formatted(term))),
-                Aggregation.skip(skip),
-                Aggregation.limit(pageSize)
-        );
-
         AggregationResults<Recipe> results = mongoTemplate.aggregate(
-                dataAggregation,
+                buildDataAggregation("cookingOrderList.instruction", term, skip, pageSize),
                 collectionName,
                 Recipe.class
         );
 
-        List<SearchRecipeResponseDto> recipes = results.getMappedResults().stream()
-                .map(recipe-> SearchRecipeResponseDto.from(recipe, 0.0))
-                .collect(Collectors.toList());
+        List<SearchRecipeResponseDto> recipes = mapRecipes(results);
 
-        return SearchRecipeListResponseDto.builder()
-                .recipes(recipes)
-                .totalCount(totalCount)
-                .currentPage(page)
-                .pageSize(pageSize)
-                .totalPages((int) Math.ceil((double) totalCount / pageSize)) // 올림
-                .build();
+        return buildResponse(recipes, page, pageSize, totalCount);
 
 
     }
 
 
+    private Aggregation buildCountAggregation(String path, String term) {
+        Document textStage = new Document("query", term)
+                .append("path", path);
+        Document searchMeta = new Document("$searchMeta",
+                new Document("index", SEARCH_INDEX_NAME)
+                        .append("text", textStage)
+                        .append("count", new Document("type", "total")));
+        return Aggregation.newAggregation(Aggregation.stage(searchMeta));
+    }
+
+    private Aggregation buildDataAggregation(String path, String term, int skip, int limit) {
+        Document textStage = new Document("query", term)
+                .append("path", path);
+        Document searchStage = new Document("$search",
+                new Document("index", SEARCH_INDEX_NAME)
+                        .append("text", textStage));
+        return Aggregation.newAggregation(
+                Aggregation.stage(searchStage),
+                Aggregation.skip(skip),
+                Aggregation.limit(limit)
+        );
+    }
+
+    private int extractTotalCount(AggregationResults<Document> countResults) {
+        if (countResults.getMappedResults().isEmpty()) {
+            return 0;
+        }
+        Document searchMetaDoc = countResults.getMappedResults().get(0);
+        Document countDoc = searchMetaDoc.get("count", Document.class);
+        if (countDoc == null) {
+            return 0;
+        }
+        Number total = countDoc.get("total", Number.class);
+        return total == null ? 0 : total.intValue();
+    }
+
+    private List<SearchRecipeResponseDto> mapRecipes(AggregationResults<Recipe> results) {
+        return results.getMappedResults().stream()
+                .map(recipe -> SearchRecipeResponseDto.from(recipe, DEFAULT_SCORE))
+                .collect(Collectors.toList());
+    }
+
+    private SearchRecipeListResponseDto buildResponse(List<SearchRecipeResponseDto> recipes,
+                                                      int page,
+                                                      int pageSize,
+                                                      int totalCount) {
+        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+        return SearchRecipeListResponseDto.builder()
+                .recipes(recipes)
+                .totalCount(totalCount)
+                .currentPage(page)
+                .pageSize(pageSize)
+                .totalPages(totalPages)
+                .build();
+    }
 }
