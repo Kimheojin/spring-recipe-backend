@@ -30,7 +30,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     public List<AutocompleteIngredientDto> getResultAboutIngredient(String term) {
 
         Document ingredientSearchStage = new Document("$search",
-                new Document("index", "ingredient_autocomplete_kr")
+                new Document("index", "autocomplete_kr")
                         .append("autocomplete", new Document("query", term)
                                 .append("path", "ingredientList")
                                 .append("tokenOrder", "any")));
@@ -70,7 +70,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     public List<AutocompleteRecipeNameDto> getResultAboutRecipeName(String term) {
 
         Document recipeSearchStage = new Document("$search",
-                new Document("index", "recipeName_autocomplete_kr")
+                new Document("index", "autocomplete_kr")
                         .append("autocomplete", new Document("query", term)
                                 .append("path", "recipeName")
                                 .append("tokenOrder", "any"))
