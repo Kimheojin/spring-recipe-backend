@@ -22,3 +22,9 @@ Spring REST Docs를 통해 API 문서가 자동 생성
 ## 배포 환경
 
 - 자체 온프레미스 서버 + Vercel (프론트)
+
+---
+## index 구현 방식 관련
+
+- DSL 로 작성가능한건 최대한 작성하고,
+  - 불가능 한건 Document 로 Json 작성해서 집어 넣자
