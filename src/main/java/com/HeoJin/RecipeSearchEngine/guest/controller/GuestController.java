@@ -21,7 +21,6 @@ public class GuestController {
     @PostMapping("/recipe/like")
     public ResponseEntity<String> addRecipeLike(
             @RequestBody RecipeLikeRequest request,
-            // 순수 문자열만 가능 한듯, service 단에서 검증만 한번 하기
             @CookieValue(value = "GUEST_UUID", required = false) String guestUuid
     ){
         String result = guestService.addRecipeLike(request, guestUuid);
