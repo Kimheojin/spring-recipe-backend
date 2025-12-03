@@ -4,3 +4,8 @@ server:
 spring:
   profiles:
     active: local
+
+custom:
+  guest:
+    cookie:
+      name: GUEST_UUID
