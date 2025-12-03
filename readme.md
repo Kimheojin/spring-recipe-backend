@@ -30,7 +30,7 @@ Spring REST Docs를 통해 API 문서가 자동 생성
   - 불가능 한건 Document 로 Json 작성해서 집어 넣자
 
 
-
+- rsync 활용 배포
 ---
 추가기능 구현 방향
 
@@ -42,4 +42,10 @@ Spring REST Docs를 통해 API 문서가 자동 생성
   - 메타데이터 어느정도 먹는다고 함
 
 - 쿠키에 guestID 만 저장하면 될듯
-- 
+
+---
+- 동기화 명령어
+
+```bash
+rsync -avzP -e "ssh -p 포트 번호" spring-recipe-backend/ jin@heojineee.ddnsking.com:~/spring-recipe-backend/
+```
