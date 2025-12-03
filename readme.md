@@ -49,3 +49,6 @@ Spring REST Docs를 통해 API 문서가 자동 생성
 ```bash
 rsync -avzP -e "ssh -p 포트 번호" spring-recipe-backend/ jin@heojineee.ddnsking.com:~/spring-recipe-backend/
 ```
+// 내가 본 페이지도 구현 가능할듯
+- Redis 사용해서
+  - TTL 기반으로 할지 뭐로 할지 정해서 하기
