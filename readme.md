@@ -52,3 +52,6 @@ rsync -avzP -e "ssh -p 포트 번호" spring-recipe-backend/ jin@heojineee.ddnsk
 // 내가 본 페이지도 구현 가능할듯
 - Redis 사용해서
   - TTL 기반으로 할지 뭐로 할지 정해서 하기
+- 사용자가 모르게 prehandle 이나 앞단에서 처리하는 게 낫나
+- interceptor 단에서 쿠키 처리 로직 완성하기
+- interceptor 단에서 쿠키 처리 로직 완성하기
