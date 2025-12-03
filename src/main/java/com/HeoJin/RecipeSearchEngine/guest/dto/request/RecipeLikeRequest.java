@@ -1,0 +1,15 @@
+package com.HeoJin.RecipeSearchEngine.guest.dto.request;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+public class RecipeLikeRequest {
+    private String recipeId;
+}
