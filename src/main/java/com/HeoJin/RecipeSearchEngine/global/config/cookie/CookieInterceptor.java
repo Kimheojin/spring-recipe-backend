@@ -46,6 +46,8 @@ public class CookieInterceptor implements HandlerInterceptor {
             // HTTPS
             newCookie.setSecure(true);
 
+            response.addCookie(newCookie);
+
             log.info("새 UUID 쿠키 생성: " + uuid);
 
         }
