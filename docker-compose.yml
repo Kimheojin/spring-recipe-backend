@@ -11,6 +11,9 @@ services:
       # mongo 관련 설저 application-mongo
     networks:
       - my-network
+      - blog-network
 networks:
   my-network:
     external: true # 존재 안하면 종료
+  blog-network:
+    external: true
