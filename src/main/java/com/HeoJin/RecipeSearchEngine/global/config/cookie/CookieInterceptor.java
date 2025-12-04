@@ -41,10 +41,12 @@ public class CookieInterceptor implements HandlerInterceptor {
 
             newCookie.setPath("/");
             newCookie.setHttpOnly(true);
+
             // 유횻기간, 초단위
             newCookie.setMaxAge(60 * 60 * 24 * 60);
             // HTTPS
             newCookie.setSecure(true);
+            newCookie.setAttribute("SameSite", "None");
 
             response.addCookie(newCookie);
 
