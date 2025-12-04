@@ -38,5 +38,6 @@ out/
 
 ### custom ###
 application-local.yml
-application-oauth2.yml
+application-dev.yml
 deploy.http
+
