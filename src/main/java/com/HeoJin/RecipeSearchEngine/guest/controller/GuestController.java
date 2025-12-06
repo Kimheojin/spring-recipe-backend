@@ -2,14 +2,13 @@ package com.HeoJin.RecipeSearchEngine.guest.controller;
 
 import com.HeoJin.RecipeSearchEngine.guest.dto.request.RecipeBookmarkRequest;
 import com.HeoJin.RecipeSearchEngine.guest.dto.request.RecipeLikeRequest;
+import com.HeoJin.RecipeSearchEngine.guest.dto.response.RecipeStatusListResponseDto;
 import com.HeoJin.RecipeSearchEngine.guest.service.GuestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/seo")
@@ -37,5 +36,16 @@ public class GuestController {
         String result = guestService.addBookmark(request, guestUuid);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/recipe/status")
+    public ResponseEntity<RecipeStatusListResponseDto> getStatusWithRecipeList(
+            @RequestParam("recipeId") List<String> recipeIds,
+            @CookieValue(value = "GUEST_UUID", required = false) String guestUuid
+    ){
+        RecipeStatusListResponseDto response = guestService.getStatusWithRecipeList(recipeIds, guestUuid);
+        return ResponseEntity.ok(response);
+    }
+
+
 
 }
