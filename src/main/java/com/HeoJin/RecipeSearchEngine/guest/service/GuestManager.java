@@ -17,7 +17,6 @@ public class GuestManager {
             throw new IllegalArgumentException("레시피 ID는 필수 값입니다.");
         }
         if (!StringUtils.hasText(guestUuid)) {
-            //
             throw new IllegalStateException("식별 쿠키가 존재하지 않습니다.");
         }
     }
