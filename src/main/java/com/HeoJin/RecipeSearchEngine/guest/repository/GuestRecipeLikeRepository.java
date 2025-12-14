@@ -9,4 +9,5 @@ public interface GuestRecipeLikeRepository extends JpaRepository<GuestRecipeLike
     // in -> 임시테이블? 나중에 보고 ㅎ확인
     // 한번 더 확인해 보기
     List<GuestRecipeLike> findAllByGuestIdAndRecipeIdIn(Long guestId, List<String> recipeIds);
+    List<GuestRecipeLike> findAllByGuestId(Long guestId);
 }

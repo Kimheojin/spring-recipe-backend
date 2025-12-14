@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface GuestRecipeBookmarkRepository extends JpaRepository<GuestRecipeBookmark, Long> {
     List<GuestRecipeBookmark> findAllByGuestIdAndRecipeIdIn(Long guestId, List<String> recipeIds);
+    List<GuestRecipeBookmark> findAllByGuestId(Long guestId);
 }

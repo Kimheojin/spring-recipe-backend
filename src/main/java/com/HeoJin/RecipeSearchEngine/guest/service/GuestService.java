@@ -2,6 +2,8 @@ package com.HeoJin.RecipeSearchEngine.guest.service;
 
 import com.HeoJin.RecipeSearchEngine.guest.dto.request.RecipeBookmarkRequest;
 import com.HeoJin.RecipeSearchEngine.guest.dto.request.RecipeLikeRequest;
+import com.HeoJin.RecipeSearchEngine.guest.dto.response.RecipeBookmarkListResponseDto;
+import com.HeoJin.RecipeSearchEngine.guest.dto.response.RecipeLikeListResponseDto;
 import com.HeoJin.RecipeSearchEngine.guest.dto.response.RecipeStatusDto;
 import com.HeoJin.RecipeSearchEngine.guest.dto.response.RecipeStatusListResponseDto;
 import com.HeoJin.RecipeSearchEngine.guest.entity.Guest;
@@ -129,5 +131,46 @@ public class GuestService {
                 .toList();
 
         return new RecipeStatusListResponseDto(statuses);
+    }
+
+    public RecipeLikeListResponseDto getLikeList(String guestUuid) {
+        validateGuestUuid(guestUuid);
+
+        Guest guest = guestRepository.findByGuestUuid(guestUuid)
+                .orElse(null);
+
+        if (guest == null) {
+            return new RecipeLikeListResponseDto(Collections.emptyList());
+        }
+
+        List<String> recipeIds = guestRecipeLikeRepository.findAllByGuestId(guest.getId())
+                .stream()
+                .map(GuestRecipeLike::getRecipeId)
+                .toList();
+
+        return new RecipeLikeListResponseDto(recipeIds);
+    }
+    public RecipeBookmarkListResponseDto getBookmarkList(String guestUuid) {
+        validateGuestUuid(guestUuid);
+
+        Guest guest = guestRepository.findByGuestUuid(guestUuid)
+                .orElse(null);
+
+        if (guest == null) {
+            return new RecipeBookmarkListResponseDto(Collections.emptyList());
+        }
+
+        List<String> recipeIds = guestRecipeBookmarkRepository.findAllByGuestId(guest.getId())
+                .stream()
+                .map(GuestRecipeBookmark::getRecipeId)
+                .toList();
+
+        return new RecipeBookmarkListResponseDto(recipeIds);
+    }
+
+    private void validateGuestUuid(String guestUuid) {
+        if (!StringUtils.hasText(guestUuid)) {
+            throw new IllegalStateException("쿠키가 존재하지 않습니다.");
+        }
     }
 }
