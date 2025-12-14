@@ -6,6 +6,8 @@ import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteRecipeNameDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.ListAutocompleteIngredientDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.ListAutocompleteRecipeNameDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.repository.AutocompleteRepository;
+import com.HeoJin.RecipeSearchEngine.global.exception.BusinessException;
+import com.HeoJin.RecipeSearchEngine.global.exception.ErrorCode.EnumErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,15 +19,21 @@ public class AutocompleteService {
 
     private final AutocompleteRepository autocompleteRepository;
     public ListAutocompleteIngredientDto getIngredientAutocomplete(String term) {
-
+        validateTerm(term);
         List<AutocompleteIngredientDto> resultAboutIngredient = autocompleteRepository.getResultAboutIngredient(term);
         return new ListAutocompleteIngredientDto(resultAboutIngredient);
 
     }
 
     public ListAutocompleteRecipeNameDto getRecipeAutocomplete(String term) {
-
+        validateTerm(term);
         List<AutocompleteRecipeNameDto> resultAboutRecipeName = autocompleteRepository.getResultAboutRecipeName(term);
         return new ListAutocompleteRecipeNameDto(resultAboutRecipeName);
+    }
+
+    private void validateTerm(String term) {
+        if (term == null || term.trim().isEmpty()) {
+            throw new BusinessException(EnumErrorCode.INVALID_REQUEST, "검색어를 입력해주세요.");
+        }
     }
 }

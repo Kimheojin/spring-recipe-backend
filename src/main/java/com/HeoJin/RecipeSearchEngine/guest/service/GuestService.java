@@ -1,5 +1,7 @@
 package com.HeoJin.RecipeSearchEngine.guest.service;
 
+import com.HeoJin.RecipeSearchEngine.global.exception.AuthException;
+import com.HeoJin.RecipeSearchEngine.global.exception.ErrorCode.EnumErrorCode;
 import com.HeoJin.RecipeSearchEngine.guest.dto.request.RecipeBookmarkRequest;
 import com.HeoJin.RecipeSearchEngine.guest.dto.request.RecipeLikeRequest;
 import com.HeoJin.RecipeSearchEngine.guest.dto.response.RecipeBookmarkListResponseDto;
@@ -92,7 +94,7 @@ public class GuestService {
             return new RecipeStatusListResponseDto(Collections.emptyList());
         }
         if (!StringUtils.hasText(guestUuid)) {
-            throw new IllegalStateException("쿠키가 존재하지 않습니다.");
+            throw new AuthException(EnumErrorCode.FORBIDDEN_ACTION, "쿠키가 존재하지 않습니다.");
         }
 
         Guest guest = guestRepository.findByGuestUuid(guestUuid)
@@ -170,7 +172,7 @@ public class GuestService {
 
     private void validateGuestUuid(String guestUuid) {
         if (!StringUtils.hasText(guestUuid)) {
-            throw new IllegalStateException("쿠키가 존재하지 않습니다.");
+            throw new AuthException(EnumErrorCode.FORBIDDEN_ACTION, "쿠키가 존재하지 않습니다.");
         }
     }
 }
