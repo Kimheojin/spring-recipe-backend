@@ -9,6 +9,7 @@ import com.HeoJin.RecipeSearchEngine.autocomplete.repository.AutocompleteReposit
 import com.HeoJin.RecipeSearchEngine.global.exception.BusinessException;
 import com.HeoJin.RecipeSearchEngine.global.exception.ErrorCode.EnumErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,13 +19,15 @@ import java.util.List;
 public class AutocompleteService {
 
     private final AutocompleteRepository autocompleteRepository;
+
+    @Cacheable(cacheNames = "autocomplete:ingredient", key = "#term")
     public ListAutocompleteIngredientDto getIngredientAutocomplete(String term) {
         validateTerm(term);
         List<AutocompleteIngredientDto> resultAboutIngredient = autocompleteRepository.getResultAboutIngredient(term);
         return new ListAutocompleteIngredientDto(resultAboutIngredient);
 
     }
-
+    @Cacheable(cacheNames = "autocomplete:recipeName", key = "#term")
     public ListAutocompleteRecipeNameDto getRecipeAutocomplete(String term) {
         validateTerm(term);
         List<AutocompleteRecipeNameDto> resultAboutRecipeName = autocompleteRepository.getResultAboutRecipeName(term);
