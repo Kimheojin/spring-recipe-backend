@@ -25,35 +25,41 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     @Value("${mongo.collectionName}")
     private String collectionName;
 
-    // 재료 기반 자동 완성
+    // 재료명 기반 자동 완성
     @Override
     public List<AutocompleteIngredientDto> getResultAboutIngredient(String term) {
 
+        // 인덱스 지정 json
         Document ingredientSearchStage = new Document("$search",
                 new Document("index", "autocomplete_kr")
                         .append("autocomplete", new Document("query", term)
                                 .append("path", "ingredientList")
                                 .append("tokenOrder", "any")));
 
+        // score json 필드 추가
         Document addFieldsStage = new Document("$addFields",
                 new Document("score", new Document("$meta", "searchScore")));
 
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.stage(ingredientSearchStage),
                 Aggregation.stage(addFieldsStage),
+                // ingredientList 중 term 으로 시작하는 값만 필터링
                 Aggregation.project()
                         .andExpression(filterIngredientExpression(term))
                         .as("matchingIngredients")
                         .and("score").as("score"),
+                // 재료 배열 펼치기
                 Aggregation.unwind("matchingIngredients"),
                 Aggregation.project()
                         .andExpression("$matchingIngredients")
                         .as("ingredient")
                         .and("score").as("score"),
+                // 동일 재료명 중 가장 높은 score 선택
                 Aggregation.group("ingredient")
                         .max("score").as("score"),
                 Aggregation.project()
                         .andExpression("$_id").as("ingredient")
+                        // score 기준 내림차순
                         .and("score").as("score"),
                 Aggregation.sort(Sort.by(Sort.Direction.DESC, "score")),
                 Aggregation.limit(10)
@@ -65,20 +71,21 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
         return results.getMappedResults();
     }
 
-    // recipe name 데이터가 더러워서 이렇게 하는 게 맞을듯
+    // 레시피명 기반 자동 완성
     @Override
     public List<AutocompleteRecipeNameDto> getResultAboutRecipeName(String term) {
 
+        // highligth 설정
         Document recipeSearchStage = new Document("$search",
                 new Document("index", "autocomplete_kr")
                         .append("autocomplete", new Document("query", term)
                                 .append("path", "recipeName")
                                 .append("tokenOrder", "any"))
                         .append("highlight", new Document("path", "recipeName")));
-
+        // score json
         Document addFieldsStage = new Document("$addFields",
                 new Document("score", new Document("$meta", "searchScore")));
-
+        // highlight + score 만 projection
         Document highlightsProjectStage = new Document("$project",
                 new Document("highlights", new Document("$meta", "searchHighlights"))
                         .append("score", 1));
@@ -99,7 +106,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
 
         Document matchedTextStage = new Document("$addFields",
                 new Document("matchedText", matchedTextExpression));
-
+        // prefix 보장
         Document matchedTextMatchStage = new Document("$match",
                 new Document("matchedText",
                         new Document("$regex", "^%s".formatted(term))

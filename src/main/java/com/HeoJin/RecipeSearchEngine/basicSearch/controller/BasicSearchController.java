@@ -20,7 +20,8 @@ public class BasicSearchController {
     public ResponseEntity<RecipeResponseDto> getRecipe(
             @RequestParam String objectId
     ) {
-        return ResponseEntity.ok(recipeBasicService.getSingleRecipe(objectId));
+        RecipeResponseDto singleRecipe = recipeBasicService.getSingleRecipe(objectId);
+        return ResponseEntity.ok(singleRecipe);
     }
 
 
@@ -32,13 +33,15 @@ public class BasicSearchController {
             @RequestParam(defaultValue = "10") int pageSize, // 페이지 사이즈
             @RequestParam(defaultValue = "") String objectId // 기준
     ) {
-        return ResponseEntity.ok(recipeBasicService.getPageRecipe(page, pageSize, objectId));
+        RecipeListResponseDto pageRecipe = recipeBasicService.getPageRecipe(page, pageSize, objectId);
+        return ResponseEntity.ok(pageRecipe);
     }
 
     // 전체 데이터 갯수 확인용 엔드 포인트
     @GetMapping("/basic/recipescount")
     public ResponseEntity<RecipeCountDto> getCount(){
-        return ResponseEntity.ok(recipeBasicService.getRecipeCount());
+        RecipeCountDto recipeCount = recipeBasicService.getRecipeCount();
+        return ResponseEntity.ok(recipeCount);
     }
 
 

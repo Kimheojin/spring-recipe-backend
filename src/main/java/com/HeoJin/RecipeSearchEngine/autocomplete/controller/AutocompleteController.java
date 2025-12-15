@@ -18,23 +18,24 @@ public class AutocompleteController {
 
     private final AutocompleteService autocompleteService;
 
-    
-    // requestParam 으로 받기
-    // 재룡전용
+    // 재룡전용 자동 완성
     @GetMapping("/autocomplete/ingredient")
     public ResponseEntity<ListAutocompleteIngredientDto> IngredientAutocomplete(
             @RequestParam("term") String term
     ) {
-        return ResponseEntity.ok(autocompleteService.getIngredientAutocomplete(term));
+        ListAutocompleteIngredientDto ingredientAutocomplete = autocompleteService.getIngredientAutocomplete(term);
+
+        return ResponseEntity.ok(ingredientAutocomplete);
     }
 
 
-    // recipeName 전용
+    // 자동완성 + recipeName 전용
     @GetMapping("/autocomplete/recipename")
     public ResponseEntity<ListAutocompleteRecipeNameDto> recipeNameAutocomplete(
             @RequestParam("term") String term
     ) {
-        return ResponseEntity.ok(autocompleteService.getRecipeAutocomplete(term));
+        ListAutocompleteRecipeNameDto recipeAutocomplete = autocompleteService.getRecipeAutocomplete(term);
+        return ResponseEntity.ok(recipeAutocomplete);
     }
 
 }
