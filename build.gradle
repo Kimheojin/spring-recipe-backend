@@ -48,8 +48,14 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// 상태 저장용
-//	runtimeOnly 'com.mysql:mysql-connector-j'
-	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+//	runtimeOnly 'com.h2database:h2'
+	// redis 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	// 캐싱 관련 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 }
 ext {
 	// restDocs
