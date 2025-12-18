@@ -37,3 +37,4 @@ custom:
   guest:
     cookie:
       name: GUEST_UUID
+    test-uuid: "test-fixed-uuid-1234-5678"
