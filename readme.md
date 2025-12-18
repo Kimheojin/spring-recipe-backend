@@ -55,3 +55,7 @@ rsync -avzP -e "ssh -p 포트 번호" spring-recipe-backend/ jin@heojineee.ddnsk
 - 사용자가 모르게 prehandle 이나 앞단에서 처리하는 게 낫나
 - interceptor 단에서 쿠키 처리 로직 완성하기
 - interceptor 단에서 쿠키 처리 로직 완성하기
+
+---
+현재 highlight 와 autocomplete 연산 방식 차이에 따른 에러 가끔 발생
+   - 더 생각해보고 코드 변경하기
