@@ -3,6 +3,8 @@ mongo:
   collectionName: testCollection
 ## 테스트용
 spring:
+  cache:
+    type: none
   data:
     mongodb:
       database: test
@@ -13,3 +15,5 @@ de:
     mongodb:
       embedded:
         version: 6.0.5
+
+

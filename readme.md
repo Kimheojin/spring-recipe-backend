@@ -58,4 +58,4 @@ rsync -avzP -e "ssh -p 포트 번호" spring-recipe-backend/ jin@heojineee.ddnsk
 
 ---
 현재 highlight 와 autocomplete 연산 방식 차이에 따른 에러 가끔 발생
-   - 더 생각해보고 코드 변경하기
+   - 생각해보고 코드 변경하기
