@@ -1,5 +1,6 @@
 package com.HeoJin.RecipeSearchEngine.guest.controller;
 
+import com.HeoJin.RecipeSearchEngine.guest.dto.response.MessageResponseDto;
 import com.HeoJin.RecipeSearchEngine.guest.dto.request.RecipeBookmarkRequest;
 import com.HeoJin.RecipeSearchEngine.guest.dto.request.RecipeLikeRequest;
 import com.HeoJin.RecipeSearchEngine.guest.dto.response.RecipeBookmarkListResponseDto;
@@ -18,24 +19,24 @@ import java.util.List;
 public class GuestController {
     private final GuestService guestService;
 
-    // 좋아요 추가
+    // 좋아요 추가/취소 (토글)
     @PostMapping("/recipe/like")
-    public ResponseEntity<String> addRecipeLike(
+    public ResponseEntity<MessageResponseDto> toggleRecipeLike(
             @RequestBody RecipeLikeRequest request,
             @CookieValue(value = "GUEST_UUID", required = false) String guestUuid
     ){
-        String result = guestService.addRecipeLike(request, guestUuid);
+        MessageResponseDto result = guestService.toggleRecipeLike(request, guestUuid);
         return ResponseEntity.ok(result);
     }
 
 
-    // 북마크 추가
+    // 북마크 추가/취소 (토글)
     @PostMapping("/recipe/bookmark")
-    public ResponseEntity<String> addBookmark(
+    public ResponseEntity<MessageResponseDto> toggleBookmark(
             @RequestBody RecipeBookmarkRequest request,
             @CookieValue(value = "GUEST_UUID", required = false ) String guestUuid
     ){
-        String result = guestService.addBookmark(request, guestUuid);
+        MessageResponseDto result = guestService.toggleBookmark(request, guestUuid);
         return ResponseEntity.ok(result);
     }
     // 리스트 추가 엔드포인트 -> 리스트 -> 좋아요, 북마크 매핑

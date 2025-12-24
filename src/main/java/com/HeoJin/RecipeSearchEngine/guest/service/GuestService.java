@@ -1,5 +1,6 @@
 package com.HeoJin.RecipeSearchEngine.guest.service;
 
+import com.HeoJin.RecipeSearchEngine.guest.dto.response.MessageResponseDto;
 import com.HeoJin.RecipeSearchEngine.global.exception.AuthException;
 import com.HeoJin.RecipeSearchEngine.global.exception.ErrorCode.EnumErrorCode;
 import com.HeoJin.RecipeSearchEngine.guest.dto.request.RecipeBookmarkRequest;
@@ -33,15 +34,13 @@ public class GuestService {
     private final GuestRecipeBookmarkRepository guestRecipeBookmarkRepository;
 
     @Transactional
-    public String addRecipeLike(RecipeLikeRequest request, String guestUuid) {
+    public MessageResponseDto toggleRecipeLike(RecipeLikeRequest request, String guestUuid) {
         // 검증
         GuestManager.validateLikeRequest(request, guestUuid);
 
         LocalDateTime currentTime = LocalDateTime.now();
 
         Guest guest = guestRepository.findByGuestUuid(guestUuid)
-                // 비어 있는 경우
-                // orElse 랑 다름
                 .orElseGet(() -> guestRepository.save(
                         Guest.builder()
                                 .guestUuid(guestUuid)
@@ -49,6 +48,12 @@ public class GuestService {
                                 .lastSeenAt(currentTime)
                                 .build()
                 ));
+
+        // 이미 좋아요가 있는지 확인
+        if (guestRecipeLikeRepository.findByGuestIdAndRecipeId(guest.getId(), request.getRecipeId()).isPresent()) {
+            guestRecipeLikeRepository.deleteByGuestIdAndRecipeId(guest.getId(), request.getRecipeId());
+            return new MessageResponseDto("좋아요가 취소되었습니다.");
+        }
 
         guestRecipeLikeRepository.save(
                 GuestRecipeLike.builder()
@@ -58,18 +63,17 @@ public class GuestService {
                         .build()
         );
 
-        return "hello";
+        return new MessageResponseDto("좋아요 목록에 추가되었습니다.");
     }
+
     @Transactional
-    public String addBookmark(RecipeBookmarkRequest request, String guestUuid) {
+    public MessageResponseDto toggleBookmark(RecipeBookmarkRequest request, String guestUuid) {
         // 검증
         GuestManager.validateBookmarkRequest(request, guestUuid);
 
         LocalDateTime currentTime = LocalDateTime.now();
 
         Guest guest = guestRepository.findByGuestUuid(guestUuid)
-                // 비어 있는 경우
-                // orElse 랑 다름
                 .orElseGet(() -> guestRepository.save(
                         Guest.builder()
                                 .guestUuid(guestUuid)
@@ -77,6 +81,12 @@ public class GuestService {
                                 .lastSeenAt(currentTime)
                                 .build()
                 ));
+
+        // 이미 북마크가 있는지 확인
+        if (guestRecipeBookmarkRepository.findByGuestIdAndRecipeId(guest.getId(), request.getRecipeId()).isPresent()) {
+            guestRecipeBookmarkRepository.deleteByGuestIdAndRecipeId(guest.getId(), request.getRecipeId());
+            return new MessageResponseDto("북마크가 취소되었습니다.");
+        }
 
         guestRecipeBookmarkRepository.save(
                 GuestRecipeBookmark.builder()
@@ -86,7 +96,7 @@ public class GuestService {
                         .build()
         );
 
-        return "hello";
+        return new MessageResponseDto("북마크 목록에 추가되었습니다.");
     }
 
     public RecipeStatusListResponseDto getStatusWithRecipeList(List<String> recipeIds, String guestUuid) {
@@ -98,10 +108,7 @@ public class GuestService {
         }
 
         Guest guest = guestRepository.findByGuestUuid(guestUuid)
-                .orElseGet(
-                        null
-                        // 저장할 필요가 있나
-                );
+                .orElse(null);
 
         if (guest == null) {
             List<RecipeStatusDto> defaultStatus = recipeIds.stream()
