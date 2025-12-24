@@ -1,20 +1,17 @@
 package com.HeoJin.RecipeSearchEngine.autocomplete.controller;
 
 
-import com.HeoJin.RecipeSearchEngine.Init.TestService;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteIngredientDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.AutocompleteRecipeNameDto;
-import com.HeoJin.RecipeSearchEngine.autocomplete.repository.AutocompleteRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.HeoJin.RecipeSearchEngine.autocomplete.dto.ListAutocompleteIngredientDto;
+import com.HeoJin.RecipeSearchEngine.autocomplete.dto.ListAutocompleteRecipeNameDto;
+import com.HeoJin.RecipeSearchEngine.autocomplete.service.AutocompleteService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -40,45 +37,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class AutocompleteRestDocTest {
 
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
-    @Autowired
-    private TestService testService;
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private AutocompleteRepository autocompleteRepository;
-
-    @Value("${mongo.collectionName}")
-    private String collectionName;
-
-
-
-    @BeforeEach
-    void init() {
-        // 데이터 없는 경우에만 삽입
-        // 어처피 select 로직 밖에 없을듯
-        if (mongoTemplate.count(new Query(), collectionName) == 0) {
-            testService.insertInitData();
-        }
-    }
+    private AutocompleteService autocompleteService;
 
     @Test
     @DisplayName("ingredient autocomplete restDocs 테스트")
     void test1() throws Exception {
         // given
         String testTerm = "토마토";
-        // atlas search 인덱스 사용해서 test 못할듯, mock 으로 하기
         List<AutocompleteIngredientDto> mockResults = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
             mockResults.add(new AutocompleteIngredientDto("토마토" + " " +  i, i));
         }
 
-        when(autocompleteRepository.getResultAboutIngredient("토마토"))
-                .thenReturn(mockResults);
+        when(autocompleteService.getIngredientAutocomplete("토마토"))
+                .thenReturn(new ListAutocompleteIngredientDto(mockResults));
 
         // when + then
         ResultActions testMock = mockMvc.perform(get("/seo/autocomplete/ingredient")
@@ -116,8 +93,8 @@ public class AutocompleteRestDocTest {
             mockResults.add(new AutocompleteRecipeNameDto("고구마맛 토마토 + " + i, i));
         }
 
-        when(autocompleteRepository.getResultAboutRecipeName("고구마"))
-                .thenReturn(mockResults);
+        when(autocompleteService.getRecipeAutocomplete("고구마"))
+                .thenReturn(new ListAutocompleteRecipeNameDto(mockResults));
 
         // when + then
         ResultActions testMock = mockMvc.perform(get("/seo/autocomplete/recipename")
