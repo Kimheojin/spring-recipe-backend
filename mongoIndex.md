@@ -1,75 +1,66 @@
-## recipeNaame_autocomoplete_kr
-
-{
-    "mappings": {
-        "dynamic": false,
-        "fields": {
-            "recipeName": [
-                {
-                    "type": "autocomplete",
-                    "analyzer": "lucene.nori",
-                    "tokenization": "edgeGram",
-                    "minGrams": 1,
-                    "maxGrams": 15
-                },
-                {
-                    "type": "string",
-                    "analyzer": "lucene.nori"
-                }
-            ]
-        }
-    }
-}
-
-## ingredient_autocomplete_kr
-
-{
-    "mappings": {
-        "dynamic": false,
-        "fields": {
-            "ingredientList": [
-                {
-                "type": "autocomplete",
-                "analyzer": "lucene.nori",
-                "tokenization": "edgeGram",
-                "minGrams": 1,
-                "maxGrams": 10
-                    },
-                    {
-                "type": "string",
-                "analyzer": "lucene.nori"
-                }
-            ]
-        }
-    }
-}
-
 ## recipe_full_search_kr
+{
+"mappings": {
+"dynamic": false,
+"fields": {
+"recipeName": {
+"type": "string",
+"analyzer": "lucene.nori"
+},
+"ingredientList": {
+"type": "string",
+"analyzer": "lucene.nori"
+},
+"cookingOrderList": {
+"type": "document",
+"fields": {
+"instruction": {
+"type": "string",
+"analyzer": "lucene.nori"
+}
+}
+}
+}
+}
+}
+
+## autocomplete_kr
 
 {
-    "mappings": {
-        "dynamic": false,
-            "fields": {
-                "recipeName": {
-                    "type": "string",
-                    "analyzer": "lucene.nori"
-                    },
-                        "ingredientList": {
-                        "type": "string",
-                        "analyzer": "lucene.nori"
-                        },
-                        "cookingOrderList": {
-                            "type": "document",
-                            "fields": {
-                            "instruction": {
-                            "type": "string",
-                            "analyzer": "lucene.nori"
-                    }
-                }
-            }
-        }
-    }
+"mappings": {
+"dynamic": false,
+"fields": {
+"ingredientList": [
+{
+"type": "autocomplete",
+"analyzer": "lucene.nori",
+"tokenization": "edgeGram",
+"minGrams": 1,
+"maxGrams": 10
+},
+{
+"type": "string",
+"analyzer": "lucene.nori"
 }
+],
+"recipeName": [
+{
+"type": "autocomplete",
+"analyzer": "lucene.nori",
+"tokenization": "edgeGram",
+"minGrams": 1,
+"maxGrams": 15
+},
+{
+"type": "string",
+"analyzer": "lucene.nori"
+}
+]
+}
+}
+}
+
+
 
 ### autocomplete 은 접두사 매핑하는 느낌, string 은 단어 단위
 - 근데 토큰화 되는 거 생각해야 됨
