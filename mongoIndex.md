@@ -1,6 +1,11 @@
 # MongoDB Atlas Search Index Settings
 
+- 바뀌면 수정하기
+
 ## 1. recipe_full_search_kr (통합 검색용)
+
+- 이거 사실 2번이랑 통합해서 한개로 처리해도 상관 없을 듯
+- 일단 남겨두기
 
 ```json
 {
@@ -71,9 +76,13 @@
 
 ### 검색 원리 및 전략
 
-#### Autocomplete vs String
-- **Autocomplete (edgeGram)**: 사용자 입력 중인 단어의 앞부분(접두사)을 매칭합니다. (예: "된장" 입력 시 "된장찌개" 매칭)
-- **String (lucene.nori)**: 형태소 분석을 통해 분리된 단어 단위로 매칭합니다. (예: "해물된장찌개" -> "해물", "된장", "찌개")
+#### Autocomplete, String
+- **Autocomplete (edgeGram)**
+  - 사용자 입력 중인 단어의 앞부분(접두사)을 매칭
+  - (예: "된장" 입력 시 "된장찌개" 매칭)
+- **String (lucene.nori)**
+  - 형태소 분석을 통해 분리된 단어 단위로 매칭합니다.
+  - (예: "해물된장찌개" -> "해물", "된장", "찌개")
 - Autocomplete 필드로 단어 후보를 매핑하고, 그 단어의 완성본을 String 필드로 매핑하여 정확도를 높입니다.
 
 #### 검색 단계 (Workflow)
@@ -87,6 +96,11 @@
    - 결과 반환: "된장"이 포함된 모든 레시피 문서
 
 #### 기타 설정 참고
-- string 타입: 별도의 Gram 형태를 지정하지 않습니다.
-- autocomplete 타입: 반드시 minGrams, maxGrams 설정을 포함해야 합니다.
-- tokenOrder: 현재 코드에서는 'any' 설정을 사용하여 토큰의 순서와 상관없이 매칭되도록 구현되어 있습니다.
+- string 타입
+  - 별도의 Gram 형태를 지정하지 않음
+  - 사실 이거로 지정하면 분석기(nori)가 본체인 듯 
+- autocomplete 타입
+  - 반드시 minGrams, maxGrams 설정을 포함 해야함
+  - 사실 안해도 디폴트 값
+- tokenOrder
+  - ㅁㄴㅇㄹ
