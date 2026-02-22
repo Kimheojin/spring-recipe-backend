@@ -21,7 +21,7 @@ public class GuestRecipeBookmark {
     @Column(name = "guest_id")
     private Long guestId;
 
-    @Column(name = "recipe_id")
+    @Column(name = "recipe_id", unique = true)
     private String recipeId;
 
     @Column(name = "create_at")
