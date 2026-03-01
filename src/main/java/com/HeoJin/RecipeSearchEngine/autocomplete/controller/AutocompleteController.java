@@ -5,6 +5,7 @@ import com.HeoJin.RecipeSearchEngine.autocomplete.dto.ListAutocompleteIngredient
 import com.HeoJin.RecipeSearchEngine.autocomplete.dto.ListAutocompleteRecipeNameDto;
 import com.HeoJin.RecipeSearchEngine.autocomplete.service.AutocompleteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ public class AutocompleteController {
 
     // 재룡전용 자동 완성
     @GetMapping("/autocomplete/ingredient")
+    @Cacheable(cacheNames = "autocomplete:controller:ingredient", key = "#term", cacheManager = "caffeineCacheManager")
     public ResponseEntity<ListAutocompleteIngredientDto> IngredientAutocomplete(
             @RequestParam("term") String term
     ) {
@@ -31,6 +33,7 @@ public class AutocompleteController {
 
     // 자동완성 + recipeName 전용
     @GetMapping("/autocomplete/recipename")
+    @Cacheable(cacheNames = "autocomplete:controller:recipeName", key = "#term", cacheManager = "caffeineCacheManager")
     public ResponseEntity<ListAutocompleteRecipeNameDto> recipeNameAutocomplete(
             @RequestParam("term") String term
     ) {

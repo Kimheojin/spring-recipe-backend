@@ -1,9 +1,13 @@
 package com.HeoJin.RecipeSearchEngine.global.config.cache;
 
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -15,34 +19,40 @@ import java.time.Duration;
 @Configuration
 @EnableCaching
 public class CacheConfig {
+    // 메서드 명 통해 지정가능
 
-    // redis 기본 적책 느낌
+    @Bean
+    public CacheManager caffeineCacheManager(){
+        CaffeineCacheManager manager = new CaffeineCacheManager();
+        manager.setCaffeine(Caffeine.newBuilder()
+                .expireAfterWrite(Duration.ofMinutes(1))
+                .maximumSize(100));
+        return manager;
+    }
+
+
+
+    // Redis 캐시 매니저 (Service 용)
+    @Bean
+    @Primary // 디폴트 값으로 지정
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory cf) {
+        return RedisCacheManager.builder(cf)
+                .cacheDefaults(redisCacheConfiguration())
+                .transactionAware()
+                .build();
+    }
+
+    // Redis 설정
+    // 10분 유지
     @Bean
     public RedisCacheConfiguration redisCacheConfiguration() {
         return RedisCacheConfiguration.defaultCacheConfig()
-                // 10qns
-                // 길이마다 차등?
                 .entryTtl(Duration.ofMinutes(10))
-                // null 일 경우 저장하지 않음
                 .disableCachingNullValues()
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(
-                                // json 으로 처리 (직렬화)
                                 new GenericJackson2JsonRedisSerializer()
                         )
                 );
-    }
-
-    // spring cache 가 redis 를 어떻게 할지 관한
-    @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory cf,
-                                          RedisCacheConfiguration config) {
-        // 캐시별 TTL 다르게 주고 싶으면 여기서 withInitialCacheConfigurations 사용
-
-        return RedisCacheManager.builder(cf)
-                //트랜잭션 커밋 이후에 캐시 반영
-                .cacheDefaults(config)
-                .transactionAware()
-                .build();
     }
 }

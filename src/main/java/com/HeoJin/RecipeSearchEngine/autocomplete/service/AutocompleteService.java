@@ -19,15 +19,17 @@ import java.util.List;
 public class AutocompleteService {
 
     private final AutocompleteRepository autocompleteRepository;
+    // service 단 redis 사용
 
-    @Cacheable(cacheNames = "autocomplete:ingredient", key = "#term")
+    @Cacheable(cacheNames = "autocomplete:service:ingredient", key = "#term", cacheManager = "redisCacheManager")
+
     public ListAutocompleteIngredientDto getIngredientAutocomplete(String term) {
         validateTerm(term);
         List<AutocompleteIngredientDto> resultAboutIngredient = autocompleteRepository.getResultAboutIngredient(term);
         return new ListAutocompleteIngredientDto(resultAboutIngredient);
 
     }
-    @Cacheable(cacheNames = "autocomplete:recipeName", key = "#term")
+    @Cacheable(cacheNames = "autocomplete:service:recipeName", key = "#term", cacheManager = "redisCacheManager")
     public ListAutocompleteRecipeNameDto getRecipeAutocomplete(String term) {
         validateTerm(term);
         List<AutocompleteRecipeNameDto> resultAboutRecipeName = autocompleteRepository.getResultAboutRecipeName(term);
