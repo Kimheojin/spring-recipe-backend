@@ -55,6 +55,8 @@ dependencies {
 	// 캐싱 관련 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	// 로컬 캐시 관련 의존성
+	implementation 'com.github.ben-manes.caffeine:caffeine'
 
 }
 ext {
