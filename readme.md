@@ -12,25 +12,63 @@
 ### Apache Nori 형태소 분석기를 이용한 한글 형태소 분석 인덱스 구성
 #### 구현 목적
 
-- 일반 형태소 분석기 사용 시 검색 품질 저하 문제 
-- 
-## 구현 내용
+- 한국어의 특성인 복합 명사(ex 갓김치)와 조사/어미 분리 필요성 대두
+- 일반 공백 분석기(영어 공백 분석기)를 통한 한국어 검색 품질 한계를 극복 필요 
 
-### Apache Nori를 이용한 한글 형태소 분석 인덱스 구성
-#### 구현 목적
-- 한국어의 특성인 복합 명사("해물된장찌개")와 조사/어미 분리 필요성 대두
-- 일반 공백 분석기의 검색 품질 한계를 극복하고 정교한 키워드 매칭 구현
 #### 구현 내용
-- MongoDB Atlas Search의 `lucene.nori` 분석기를 사용하여 한글 형태소 단위 인덱싱
-- `recipeName`, `ingredientList`, `instruction` 등 주요 검색 필드에 Nori 분석기 적용
-#### 구현 결과
-- "된장" 검색 시 "해물된장찌개"가 포함된 레시피를 정확히 탐색 가능
-- 불용어 제거 및 어근 추출을 통해 검색 의도에 부합하는 높은 정확도의 결과 반환
 
-### EdgeGram 기반 고성능 자동 완성(Autocomplete) 기능 구현
+- MongoDB Atlas Search의 `lucene.nori` 분석기를 사용하여 한글 형태소 단위 인덱싱
+```aiexclude
+{
+  "mappings": {
+    "dynamic": false,
+    "fields": {
+      "recipeName": {
+        "type": "string",
+        "analyzer": "lucene.nori" 
+      },
+```
+
+#### 구현 결과
+
+- \$search 연산자를 통한 토큰화 확인
+```aiexclude
+{
+  "_id": "68caa46cc2e635f0fa552434",
+  "recipeName": "갓김치의 아삭함이 살아있는 갓돈찌개",
+  "highlights": [
+    {
+      "score": 2.747103452682495,
+      "path": "recipeName",
+      "texts": [
+        {
+          "value": "갓",
+          "type": "text"
+        },
+        {
+          "value": "김치",
+          "type": "hit"
+        },
+        {
+          "value": "의 아삭함이 살아있는 갓돈",
+          "type": "text"
+        },
+        {
+          "value": "찌개",
+          "type": "hit"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### EdgeGram 기반 자동 완성(Autocomplete) 기능 구현
 #### 구현 목적
+
 - 사용자가 한 글자만 입력해도 실시간으로 관련 레시피와 재료를 제안하는 빠른 UX 제공
 - 오타나 미완성 단어에 대해서도 유연한 접두사 매칭 수행
+
 #### 구현 내용
 - `edgeGram` 토큰화 방식 적용 (`minGrams: 1`, `maxGrams: 15`)
 - Atlas Search의 `autocomplete` 타입을 활용하여 실시간 인덱스 조회 최적화
