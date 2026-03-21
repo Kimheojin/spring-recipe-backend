@@ -1,104 +1,108 @@
-## recipeNaame_autocomoplete_kr
+# MongoDB Atlas Search Index Settings
 
+- 바뀌면 수정하기
+
+## 1. recipe_full_search_kr (통합 검색용)
+
+- 이거 사실 2번이랑 통합해서 한개로 처리해도 상관 없을 듯
+- 일단 남겨두기
+
+```json
 {
-    "mappings": {
-        "dynamic": false,
+  "mappings": {
+    "dynamic": false,
+    "fields": {
+      "recipeName": {
+        "type": "string",
+        "analyzer": "lucene.nori"
+      },
+      "ingredientList": {
+        "type": "string",
+        "analyzer": "lucene.nori"
+      },
+      "cookingOrderList": {
+        "type": "document",
         "fields": {
-            "recipeName": [
-                {
-                    "type": "autocomplete",
-                    "analyzer": "lucene.nori",
-                    "tokenization": "edgeGram",
-                    "minGrams": 1,
-                    "maxGrams": 15
-                },
-                {
-                    "type": "string",
-                    "analyzer": "lucene.nori"
-                }
-            ]
+          "instruction": {
+            "type": "string",
+            "analyzer": "lucene.nori"
+          }
         }
+      }
     }
+  }
 }
+```
 
-## ingredient_autocomplete_kr
+## 2. autocomplete_kr (자동 완성용)
 
+```json
 {
-    "mappings": {
-        "dynamic": false,
-        "fields": {
-            "ingredientList": [
-                {
-                "type": "autocomplete",
-                "analyzer": "lucene.nori",
-                "tokenization": "edgeGram",
-                "minGrams": 1,
-                "maxGrams": 10
-                    },
-                    {
-                "type": "string",
-                "analyzer": "lucene.nori"
-                }
-            ]
+  "mappings": {
+    "dynamic": false,
+    "fields": {
+      "ingredientList": [
+        {
+          "type": "autocomplete",
+          "analyzer": "lucene.nori",
+          "tokenization": "edgeGram",
+          "minGrams": 1,
+          "maxGrams": 10
+        },
+        {
+          "type": "string",
+          "analyzer": "lucene.nori"
         }
-    }
-}
-
-## recipe_full_search_kr
-
-{
-    "mappings": {
-        "dynamic": false,
-            "fields": {
-                "recipeName": {
-                    "type": "string",
-                    "analyzer": "lucene.nori"
-                    },
-                        "ingredientList": {
-                        "type": "string",
-                        "analyzer": "lucene.nori"
-                        },
-                        "cookingOrderList": {
-                            "type": "document",
-                            "fields": {
-                            "instruction": {
-                            "type": "string",
-                            "analyzer": "lucene.nori"
-                    }
-                }
-            }
+      ],
+      "recipeName": [
+        {
+          "type": "autocomplete",
+          "analyzer": "lucene.nori",
+          "tokenization": "edgeGram",
+          "minGrams": 1,
+          "maxGrams": 15
+        },
+        {
+          "type": "string",
+          "analyzer": "lucene.nori"
         }
+      ]
     }
+  }
 }
+```
 
-### autocomplete 은 접두사 매핑하는 느낌, string 은 단어 단위
-- 근데 토큰화 되는 거 생각해야 됨
-  -  nori 로 예를들어 "해물된장찌개" -> 해물, 된장, 찌개로 분리되는 느낌
-- token 별로 생각하기
-- autocomplete 추가
+---
 
--> autocomplete 으로 단어 매핑하고, 그 단어로 type String 인거 매핑한다고 생각하자
+### 검색 원리 및 전략
 
-// 1단계: Autocomplete (입력 중)
-사용자 입력 "된"
-↓
-Autocomplete 검색
-↓
-토큰의 접두사 매칭 → "된장" 토큰 발견
-↓
-자동완성 제안: "된장찌개", "된장국"
+#### Autocomplete, String
+- **Autocomplete (edgeGram)**
+  - 사용자 입력 중인 단어의 앞부분(접두사)을 매칭
+  - (예: "된장" 입력 시 "된장찌개" 매칭)
+- **String (lucene.nori)**
+  - 형태소 분석을 통해 분리된 단어 단위로 매칭 -> token 단위인듯
+  - (예: "해물된장찌개" -> "해물", "된장", "찌개")
 
-// 2단계: String (실제 검색)
-사용자 선택/엔터 "된장"
-↓
-String 검색
-↓
-완전한 토큰 매칭 → "된장" 토큰 발견
-↓
-검색 결과: 모든 "된장" 포함 문서
+#### 검색 단계 (Workflow)
+1. **1단계: 자동 완성 (입력 중)**
+   - 사용자 입력: "된"
+   - autocomplete 필드 검색 -> 토큰의 접두사 매칭 -> "된장" 토큰 발견
+   - 결과 제안: "된장찌개", "된장국" 등
 
-## token order 관련해서도 정리하기(중요)
-- 토큰화 방식 관련해서도 한번 정리하면 좋을듯
+2. **2단계: 전문 검색 (확정 후)**
+   - 사용자 선택/엔터: "된장"
+   - string 필드 검색 -> 완전한 토큰 매칭 -> "된장" 토큰 발견
+   - 결과 반환: "된장"이 포함된 모든 레시피 문서
 
-- string 타입의 경우 gram 형태 지정 X
-- autocomplete 일 경우에만 지정
+#### 기타 설정 참고
+- string 타입
+  - 별도의 Gram 형태를 지정하지 않음
+  - 사실 이거로 지정하면 분석기(nori)가 본체인 듯 
+- autocomplete 타입
+  - 반드시 minGrams, maxGrams 설정을 포함 해야함
+  - 사실 안해도 디폴트 값
+- tokenOrder -> any 로 설정시
+  - 토큰 순서 신경 안쓰게 된느 듯
+  - ex 김치 찌개 -> 찌개용 김치 -> 매핑되는 듯
+  - 디폴트 sequential

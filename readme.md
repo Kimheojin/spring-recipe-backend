@@ -1,57 +1,144 @@
-# Recipe Search Engine
+# Spring Recipe Search Engine
 
-- MVP 버전
-- MongoDB를 활용한 레시피 검색 엔진
-- 한국어 전용 분석기(Nori)를 사용하여 효율적인 검색 및 자동완성 기능을 제공
+> **MongoDB Atlas Search 기반 레시피 검색 엔진**
 
-## MongoDB 인덱스 구성
+- 한국어 검색 기능을 제공하도록 설계한 레시피 검색 API 서버 코드
+- **MongoDB Atlas Search**와 **Lucene Nori(한국어)** 분석기를 활용
 
-- 무료 티어 제한으로 인해 인덱스는 최대 3개까지 사용 가능
-  - 변동 가능성 존재 
+## 1. 주요 특징
 
-- **자동완성 인덱스**: type = autocomplete
-- **통합검색 인덱스**: type = String
+### 1) 검색 엔진
 
-- 분석기는 한국어 전용 Lucene Nori를 사용
-- 본 프로젝트 루트 폴더에 mongoIndex.md 에 참고용 존재
+#### 1-1) Apache Lucene 기반 전문 검색
 
-## API 문서
+- **분석기(Analyzer)**
+  - `lucene.nori`(한국어 형태소 분석기)를 사용, 한국어의 뉘앙스 처리
+  - [참고링크](https://esbook.kimjmin.net/06-text-analysis/6.7-stemming/6.7.2-nori)
+- **자동 완성(Autocomplete)**
+    -   **인덱스**: `autocomplete_kr` (type: `autocomplete`)
+    -   **로직**: Aggregation Pipeline(`$search`, `$project`, `$reduce`) 구현
+    -   **하이라이팅**: `$meta: "searchHighlights"`를 사용하여 결과 내 검색어 하이라이팅 지원
+- **통합 검색(Integrated Search)**:
+    -   **인덱스**: `recipe_full_search_kr` (type: `text`)
+    -   **성능**: 모든 문서를 가져오지 않고 `$searchMeta`를 활용하여 효율적으로 전체 카운트를 조회
+    -   **범위**: 레시피 이름, 재료, 요리 조리법 전반에 걸친 다중 필드 검색을 지원
 
-Spring REST Docs를 통해 API 문서가 자동 생성
+### 2) 비회원 식별 체계 및 보안
 
-## 배포 환경
+인증 없이 개인화 기능(북마크, 좋아요)을 제공하기 위해 `HandlerInterceptor` 기반의 익명 식별 체계를 구축
 
-- 자체 온프레미스 서버 + Vercel (프론트)
+-   **비회원 식별 로직**
+    -   `CookieInterceptor`를 통해 유효한 식별자 존재 여부를 검증
+    -   최초 방문 시 서버에서 `UUID(36자 랜덤 문자열)`를 생성하여 클라이언트에 발급, 이를 통해 Stateless 환경에서도 비회원 활동 내역을 영속적으로 관리
+-   **쿠키 보안 전략**: 민감한 식별자 정보 보호 및 크로스 도메인 이슈 해결을 위해 브라우저 보안 정책을 준수
+    -   **HttpOnly**: 클라이언트 사이드 스크립트(JavaScript)의 접근을 차단
+    -   **Secure**: HTTPS 프로토콜 기반의 암호화 통신 시에만 쿠키가 전송되도록 강제
+    -   발급된 식별자는 MySQL의 `Guest` 엔티티와 매핑되어 북마크 및 좋아요 데이터를 관계형으로 관리
 
----
-## index 구현 방식 관련
+## 3. 아키텍처
 
-- DSL 로 작성가능한건 최대한 작성하고,
-  - 불가능 한건 Document 로 Json 작성해서 집어 넣자
+![Project Overview](./docs/overview.png)
 
+## 4. 기술 스택
 
-- rsync 활용 배포
----
-추가기능 구현 방향
+- **Backend**: Java 17, Spring Boot 3.5.6, Gradle
+- **Database & Search**: MongoDB Atlas Search, MongoDB, MySQL, Redis
+- **DevOps**: Docker, Docker Compose, Spring REST Docs
 
-- 레시피 찾는 입장에서 로그인 하는 건 
-  - 말이 안되는 거 같은데
-- 쿠키?
-  - UUID 기반으로 대충 넣고 하면 될거 같은데
-  - 4KB 까진 상관 없지 않나  -> 이거 쿠키 한개 최대 크기 권장량 -> 거의 다 넘기는 듯
-  - 메타데이터 어느정도 먹는다고 함
+## 5. 인프라 및 설정
 
-- 쿠키에 guestID 만 저장하면 될듯
+### 1) 사전 요구 사항
 
----
-- 동기화 명령어
+-   Java 17 이상
+-   Docker 및 Docker Compose
 
-```bash
-rsync -avzP -e "ssh -p 포트 번호" spring-recipe-backend/ jin@heojineee.ddnsking.com:~/spring-recipe-backend/
+### 2) MongoDB Atlas Search 인덱스 구성
+
+#### 2-1) `autocomplete_kr` (자동 완성용)
+
+```json
+{
+  "mappings": {
+    "dynamic": false,
+    "fields": {
+      "ingredientList": [
+        {
+          "type": "autocomplete",
+          "analyzer": "lucene.nori",
+          "tokenization": "edgeGram",
+          "minGrams": 1,
+          "maxGrams": 10
+        },
+        {
+          "type": "string",
+          "analyzer": "lucene.nori"
+        }
+      ],
+      "recipeName": [
+        {
+          "type": "autocomplete",
+          "analyzer": "lucene.nori",
+          "tokenization": "edgeGram",
+          "minGrams": 1,
+          "maxGrams": 15
+        },
+        {
+          "type": "string",
+          "analyzer": "lucene.nori"
+        }
+      ]
+    }
+  }
+}
 ```
-// 내가 본 페이지도 구현 가능할듯
-- Redis 사용해서
-  - TTL 기반으로 할지 뭐로 할지 정해서 하기
-- 사용자가 모르게 prehandle 이나 앞단에서 처리하는 게 낫나
-- interceptor 단에서 쿠키 처리 로직 완성하기
-- interceptor 단에서 쿠키 처리 로직 완성하기
+
+#### 2-2) `recipe_full_search_kr` (통합 검색용)
+
+```json
+{
+  "mappings": {
+    "dynamic": false,
+    "fields": {
+      "recipeName": {
+        "type": "string",
+        "analyzer": "lucene.nori"
+      },
+      "ingredientList": {
+        "type": "string",
+        "analyzer": "lucene.nori"
+      },
+      "cookingOrderList": {
+        "type": "document",
+        "fields": {
+          "instruction": {
+            "type": "string",
+            "analyzer": "lucene.nori"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+
+
+## 6. 프로젝트 구조
+
+```
+src/main/java/com/HeoJin/RecipeSearchEngine/
+├── autocomplete/       # 자동 완성 로직 (Controller, Service, Repository)
+├── basicSearch/        # 기본 CRUD 및 목록 조회
+├── IntegratedSearch/   # 전문 검색 로직
+├── guest/              # 게스트 사용자 관리 및 개인화
+└── global/             # 설정, 예외 처리, 인터셉터 (쿠키 처리)
+```
+
+## 7. MongoDB Atlas M0 Tier 제한 사항 (참고)
+
+**MongoDB Atlas M0(Free Tier)** 환경을 기준으로 하며, 다음의 주요 제한 사항 내에서 최적화
+
+- **네트워크**: 7일 기준 입/출력 각 10GB 제한 (초과 시 속도 제한 및 지연 발생).
+- **저장 공간**: 최대 512MB (데이터 및 인덱스 합산).
+- **연산 및 정렬**: 쿼리 수행 시 메모리 내 정렬 한도 32MB
+- **집계 파이프라인**: 단일 파이프라인 내 최대 50개 단계(Stage)로 제한.

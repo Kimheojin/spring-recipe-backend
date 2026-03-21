@@ -11,14 +11,18 @@ public abstract class CustomException extends RuntimeException {
 
     public final Map<String, String> validation = new HashMap<>();
 
-    // 생성자
-    public CustomException(String message){
+
+    public CustomException(String message) {
         super(message);
     }
-    // ovride 대상
+
+    public CustomException(String message, Throwable cause) {// cause -> 부모 exception
+        super(message, cause);
+    }
+    // 오버라이드 대상
     public abstract int getStatusCode();
 
-    public void addValidation(String fieldName, String message){
+    public void addValidation(String fieldName, String message) {
         validation.put(fieldName, message);
     }
 }
