@@ -28,9 +28,11 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     // 재료명 기반 자동 완성
     @Override
     public List<AutocompleteIngredientDto> getResultAboutIngredient(String term) {
+        // 검색어 내 특수문자 있으면 오류 뜨 듯
+        String escapedTerm = term.replaceAll("([\\\\\\\\\\\\\\\\.*+?^${}()|\\\\[\\\\]])", "\\\\\\\\$1");
+
         Aggregation aggregation = Aggregation.newAggregation(
-                // search 연산자
-                // 문서 단위 검색
+                // 검색 (Atlas Search)
                 Aggregation.stage(Document.parse("""
                         {
                           "$search": {
@@ -44,47 +46,25 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                         }
                         """.formatted(term))),
 
-                // Score 필드 추가 파이프
-                // Document 에 붙음
+                // 검색 점수 추가
+                Aggregation.stage(Document.parse("{ '$addFields': { 'score': { '$meta': 'searchScore' } } }")),
+
+                // 배열 풀기 및 매칭되는 재료만 필터링
+                Aggregation.unwind("ingredientList"),
                 Aggregation.stage(Document.parse("""
                         {
-                          "$addFields": { "score": { "$meta": "searchScore" } }
+                          "$match": {
+                            "ingredientList": { "$regex": "^%s", "$options": "i" }
+                          }
                         }
-                        """)),
+                        """.formatted(escapedTerm))),
 
-                // 요소 단위 추출
-                // matchingIngredients 배열 + score 필드 (아직 배열 형태)
-                Aggregation.project()
-                        .andExpression("""
-                                {
-                                    "$filter": {
-                                        "input": "$ingredientList",
-                                        "cond": {
-                                            "$regexMatch": {
-                                                "input": "$$this",
-                                                "regex": "^%s"
-                                            }
-                                        }
-                                    }
-                                }
-                                """.formatted(term))
-                        .as("matchingIngredients")
-                        .and("score").as("score"),
-
-                // 배열 품
-                Aggregation.unwind("matchingIngredients"),
-                // score 는 필드 별로
-                Aggregation.project()
-                        .andExpression("$matchingIngredients").as("ingredient")
-                        .and("score").as("score"),
-                // 중복 데이터 묶고, score max 값 지정
-                Aggregation.group("ingredient")
+                // 중복 제거 (여러 레시피에 같은 재료가 있을 경우 최고 점수 유지)
+                Aggregation.group("ingredientList")
                         .max("score").as("score"),
 
-                // 필드 관련 연산자
+                // 결과 필드 매핑 및 정렬
                 Aggregation.project()
-                        // 재료명에 담긴 _id 필드를 가져와 ingredient 필드 이름 할당
-                        // { "_id" : "사과" } -> { "ingredient" : "사과" }
                         .andExpression("$_id").as("ingredient")
                         .and("score").as("score"),
                 Aggregation.sort(Sort.by(Sort.Direction.DESC, "score")),
@@ -98,8 +78,7 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
     @Override
     public List<AutocompleteRecipeNameDto> getResultAboutRecipeName(String term) {
         Aggregation aggregation = Aggregation.newAggregation(
-                // search 연산자 + 하이라이트 옵션 활성화
-                // 이건 전용 메서드가 아직 없어서 이렇게 해야됨
+                // 검색 (Atlas Search)
                 Aggregation.stage(Document.parse("""
                         {
                           "$search": {
@@ -108,70 +87,19 @@ public class AutocompleteRepositoryImpl implements AutocompleteRepository {
                               "query": "%s",
                               "path": "recipeName",
                               "tokenOrder": "any"
-                            },
-                            "highlight": { "path": "recipeName" }
-                          }
-                        }
-                        """.formatted(term))),
-
-                // Document 에 메타데이터를 붙임
-                Aggregation.stage(Document.parse("{ '$addFields': { 'score': { '$meta': 'searchScore' } } }")),
-                // searchHighlights -> 이중 배열
-                Aggregation.stage(Document.parse("{ '$project': { 'highlights': { '$meta': 'searchHighlights' }, 'score': 1 } }")),
-
-                // reduce 연산자 -> 거의 함수
-                // input -> 원본 파라미터
-                // initValue -> 초깃값
-                // in -> 함수 본문
-                //$$this -> 현재 요소
-                // $$ value -> 누적 변수 (그냥 지역변수 ㅡㄴ낌)
-                Aggregation.stage(Document.parse("""
-                        {
-                          "$addFields": {
-                            "matchedText": {
-                              "$reduce": {
-                                "input": {
-                                  "$reduce": {
-                                    "input": "$highlights",
-                                    "initialValue": [],
-                                    "in": {
-                                      "$concatArrays": [
-                                        "$$value",
-                                        {
-                                          "$filter": {
-                                            "input": "$$this.texts",
-                                            "cond": { "$eq": ["$$this.type", "hit"] }
-                                          }
-                                        }
-                                      ]
-                                    }
-                                  }
-                                },
-                                "initialValue": "",
-                                "in": { "$concat": ["$$value", "$$this.value"] }
-                              }
                             }
                           }
                         }
-                        """)),
-
-                // regex
-                Aggregation.stage(Document.parse("""
-                        {
-                          "$match": {
-                            "matchedText": { "$regex": "^%s", "$options": "i" }
-                          }
-                        }
                         """.formatted(term))),
 
+                // 검색 점수 추가
+                Aggregation.stage(Document.parse("{ '$addFields': { 'score': { '$meta': 'searchScore' } } }")),
 
-                Aggregation.project()
-                        .andExpression("$matchedText").as("recipeName")
-                        .and("score").as("score"),
+                // 중복 제거 (동일한 레시피명이 있을 경우 대비)
                 Aggregation.group("recipeName")
                         .max("score").as("score"),
 
-
+                // 결과 필드 매핑 및 정렬
                 Aggregation.project()
                         .andExpression("$_id").as("recipeName")
                         .and("score").as("score"),
