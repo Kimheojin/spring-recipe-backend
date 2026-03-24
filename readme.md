@@ -139,9 +139,9 @@ public ListAutocompleteIngredientDto getIngredientAutocomplete(String term) {
 - 검색어와 가장 연관성 높은 레시피를 상단에 배치하는 정교한 쿼리 로직 필요
 
 #### 구현 내용
-- `$search` 및 `$searchMeta` 스테이지를 활용하여 검색 결과와 총 검색 건수를 동시에 처리 로직 구축
+- 검색 결과와 메타데이터 조회를 독립적인 파이프라인으로 구성, 대용량 데이터셋에서 페이징 로직 구현
 
-- `MongoTemplate`을 이용한 동적 Aggregation Pipeline 구성 및 커스텀 스코어링 적용
+- 검색 대상(레시피명, 재료, 조리법 등)에 따라 런타임에 쿼리를 동적으로 생성하는 Aggregation Pipeline 설계 및 확장성 확보
 
 #### 구현 결과
 - 수만 건의 레시피 데이터에서도 0.1초 내외의 빠른 페이징 검색 성능 확보
@@ -173,5 +173,14 @@ public ListAutocompleteIngredientDto getIngredientAutocomplete(String term) {
 
 #### 구현 결과
 
-- 런타임 영향 없이 100% 테스트 기반의 정확한 API 명세서 확보
+- 런타임 영향 없는 테스트 기반의 정확한 API 명세서 구현
+
+## 🛠 Tech Stack
+- **Framework**: Spring Boot 3.5.6 / Java 17
+- **Database**: MongoDB Atlas Search / MySQL
+- **Caching**: Multi-level Caching (Caffeine L1 & Redis L2)
+- **Documentation**: Spring RestDocs (Asciidoc)
+- **Build & DevOps**: Gradle / Docker
+- **Testing**: JUnit5 / MockMvc / Embedded Mongo
+
  
