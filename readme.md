@@ -75,20 +75,22 @@
 
 #### 구현 내용
 
-- `edgeGram` 토큰화 방식 적용 (`minGrams: 1`, `maxGrams: 10`)
+- `edgeGram` 토큰화 방식 적용 (`minGrams: 1`, `maxGrams: 10~15`)
 - Atlas Search의 `autocomplete` 타입을 활용, 실시간 인덱스 조회 최적화
 
 ```json 
 {
-  "ingredientList": [ // 인덱스 중 일부 
-    {
-      "type": "autocomplete",
-      "analyzer": "lucene.nori",
-      "tokenizer": "edge_ngram", 
-      "min_gram": 1,             
-      "max_gram": 10
+  "mappings": {
+    "fields": {
+      "recipeName": {
+        "type": "autocomplete",
+        "analyzer": "lucene.nori",
+        "tokenization": "edgeGram",
+        "minGrams": 1,
+        "maxGrams": 15
+      }
     }
-  ]
+  }
 }
 ```
 
@@ -115,16 +117,22 @@ public class AutocompleteController {
     @GetMapping("/autocomplete/ingredient")
     @Cacheable(cacheNames = "autocomplete:controller:ingredient", key = "#term", cacheManager = "caffeineCacheManager")
     public ResponseEntity<ListAutocompleteIngredientDto> IngredientAutocomplete(@RequestParam("term") String term) {
-        return ResponseEntity.ok(autocompleteService.getIngredientAutocomplete(term));
+        ListAutocompleteIngredientDto ingredientAutocomplete = autocompleteService.getIngredientAutocomplete(term);
+        return ResponseEntity.ok(ingredientAutocomplete);
     }
 }
 ```
 - **L2 Cache (Global)**: `Redis`를 사용하여 Service 단에서 10분간 클러스터 전체 데이터 공유
 
 ```java
-@Cacheable(cacheNames = "autocomplete:service:ingredient", key = "#term", cacheManager = "redisCacheManager")
-public ListAutocompleteIngredientDto getIngredientAutocomplete(String term) {
-    return new ListAutocompleteIngredientDto(autocompleteRepository.getResultAboutIngredient(term));
+@Service
+public class AutocompleteService {
+    @Cacheable(cacheNames = "autocomplete:service:ingredient", key = "#term", cacheManager = "redisCacheManager")
+    public ListAutocompleteIngredientDto getIngredientAutocomplete(String term) {
+        validateTerm(term);
+        List<AutocompleteIngredientDto> result = autocompleteRepository.getResultAboutIngredient(term);
+        return new ListAutocompleteIngredientDto(result);
+    }
 }
 ```
 
@@ -144,22 +152,39 @@ public ListAutocompleteIngredientDto getIngredientAutocomplete(String term) {
 
 #### 구현 내용
 
-- 검색 결과와 메타데이터 조회를 독립적인 파이프라인으로 구성, 대용량 데이터셋에서 페이징 로직 구현
+- 검색 결과와 메타데이터(전체 개수) 조회를 독립적인 파이프라인으로 구성하여 대용량 데이터셋에서의 페이징 효율 최적화
 
 ```java
-FacetOperation facetOperation = Aggregation.facet(
-    Aggregation.skip((long) pageable.getOffset()),
-    Aggregation.limit(pageable.getPageSize())
-).as("paginatedResults").and(Aggregation.count().as("count")).as("totalCount");
+// 검색 메타데이터(전체 개수) 조회 파이프라인
+Aggregation countAggregation = Aggregation.newAggregation(
+    Aggregation.stage(Document.parse("""
+            {
+              "$searchMeta": {
+                "index": "%s",
+                "text": { "query": "%s", "path": "%s" },
+                "count": { "type": "total" }
+              }
+            }
+            """.formatted(SEARCH_INDEX_NAME, term, path)))
+);
 ```
 
-- 검색 대상(레시피명, 재료, 조리법 등)에 따라 런타임에 쿼리를 동적으로 생성하는 Aggregation Pipeline 설계 및 확장성 확보
+- 검색 대상(레시피명, 재료, 조리법 등)에 따라 런타임에 검색 경로(path)를 동적으로 지정하는 Atlas Search 기반 Aggregation Pipeline 설계
 
 ```java
-List<Document> mustList = new ArrayList<>();
-mustList.add(new Document("text", new Document("query", term)
-    .append("path", Arrays.asList("recipeName", "ingredientList", "cookingOrderList.description"))));
-Document searchStage = new Document("$search", new Document("compound", new Document("must", mustList)));
+// 검색 데이터 조회 및 페이징 처리 파이프라인
+Aggregation dataAggregation = Aggregation.newAggregation(
+    Aggregation.stage(Document.parse("""
+            {
+              "$search": {
+                "index": "%s",
+                "text": { "query": "%s", "path": "%s" }
+              }
+            }
+            """.formatted(SEARCH_INDEX_NAME, term, path))),
+    Aggregation.skip(skip),
+    Aggregation.limit(pageSize)
+);
 ```
 
 #### 구현 결과
@@ -176,31 +201,40 @@ Document searchStage = new Document("$search", new Document("compound", new Docu
 
 #### 구현 내용
 
-- `HandlerInterceptor` 기반 Guest ID(UUID) 쿠키 자동 발급 (30일간 유지)
+- `HandlerInterceptor` 기반 Guest ID(UUID) 쿠키 자동 발급 (60일 유효)
 
 ```java
-if (getGuestIdFromCookie(request) == null) {
-    String guestId = UUID.randomUUID().toString();
-    ResponseCookie cookie = ResponseCookie.from("guestId", guestId)
-            .path("/").maxAge(2592000).sameSite("None").secure(true).build();
-    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-}
+String uuid = UUID.randomUUID().toString();
+Cookie newCookie = new Cookie(GUEST_COOKIE_NAME, uuid);
+newCookie.setPath("/");
+newCookie.setHttpOnly(true);
+newCookie.setMaxAge(60 * 60 * 24 * 60); // 60일
+newCookie.setSecure(true);
+newCookie.setAttribute("SameSite", "None");
+response.addCookie(newCookie);
 ```
 
-- 추출된 Guest ID 기반 **MySQL 영속화** (JPA를 활용한 토글 방식)
+- 추출된 Guest ID 기반 **MySQL 영속화** (JPA를 활용한 Toggle 방식)
 
 ```java
-public void toggleBookmark(String guestUuid, String recipeId) {
+public MessageResponseDto toggleBookmark(RecipeBookmarkRequest request, String guestUuid) {
     Guest guest = guestRepository.findByGuestUuid(guestUuid)
-            .orElseGet(() -> guestRepository.save(new Guest(guestUuid)));
+            .orElseGet(() -> guestRepository.save(Guest.builder().guestUuid(guestUuid).build()));
+
+    if (guestRecipeBookmarkRepository.findByGuestIdAndRecipeId(guest.getId(), request.getRecipeId()).isPresent()) {
+        guestRecipeBookmarkRepository.deleteByGuestIdAndRecipeId(guest.getId(), request.getRecipeId());
+        return new MessageResponseDto("북마크가 취소되었습니다.");
+    }
+
     guestRecipeBookmarkRepository.save(GuestRecipeBookmark.builder()
-            .guestId(guest.getId()).recipeId(recipeId).build());
+            .guestId(guest.getId()).recipeId(request.getRecipeId()).build());
+    return new MessageResponseDto("북마크 목록에 추가되었습니다.");
 }
 ```
 
 #### 구현 결과
 
-- 별도의 회원 가입 절차 없이도 사용자의 관심 레시피가 쿠키를 통해 30일간 브라우저에 유지
+- 별도의 회원 가입 절차 없이도 사용자의 관심 레시피가 쿠키를 통해 60일간 브라우저에 유지
 - 사용자별 맞춤형 레시피 탐색 경험 제공
 
 ### 로컬 환경 기반의 테스트 독립성 확보
@@ -218,6 +252,7 @@ public void toggleBookmark(String guestUuid, String recipeId) {
 spring:
   data:
     mongodb:
+      database: test
       port: 0  # 가용 포트 자동 할당
 de:
   flapdoodle:
@@ -226,7 +261,7 @@ de:
         version: 6.0.5
 ```
 
-- MySQL(JPA) 환경을 대체하는 인메모리 RDB를 사용하여 비회원 상태 관리 로직(Guest/Bookmark) 검증
+- MySQL(JPA) 환경을 대체하는 인메모리 H2 RDB를 사용하여 비회원 상태 관리 로직 검증
 
 #### 구현 결과
 
@@ -244,10 +279,12 @@ de:
 - JUnit5 + MockMvc 연동을 통한 테스트 기반 API Snippet 자동 생성
 
 ```java
-mockMvc.perform(get("/seo/autocomplete/ingredient").queryParam("term", "토마토"))
+mockMvc.perform(get("/seo/autocomplete/ingredient")
+    .queryParam("term", "토마토"))
     .andExpect(status().isOk())
     .andDo(document("autocomplete-ingredient",
-        queryParameters(parameterWithName("term").description("자동완성 검색어"))
+        queryParameters(parameterWithName("term")
+        .description("자동완성 검색어"))
     ));
 ```
 
