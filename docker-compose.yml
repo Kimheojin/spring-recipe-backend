@@ -1,22 +1,38 @@
-
 services:
   recipe-seo:
     build: .
     container_name: recipe-seo
+
     ports:
       - "3777:3777"
+
+    # 리소스 제한
+    mem_limit: 1g
+    cpus: "1.0"
+
     environment:
-      # 타임존 설정
+      # 타임존
       - TZ=Asia/Seoul
-      # mongo 관련 설저 application-mongo
+
+      # JVM Heap: 컨테이너 1GiB 중 약 70% 사용
+      - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=70 -XX:InitialRAMPercentage=40
+
+      # mongo 관련 설정
+      # - SPRING_PROFILES_ACTIVE=application-mongo
+
     networks:
       - redis-network
       - blog-network
       - my-network
+
+    restart: unless-stopped
+
 networks:
   redis-network:
-    external: true # 존재 안하면 종료
+    external: true
+
   blog-network:
     external: true
+
   my-network:
     external: true
