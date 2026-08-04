@@ -5,7 +5,7 @@
 
 ## 프로젝트 배포 구조 요약
 
-![레시피 프로젝트 도식도](https://res.cloudinary.com/dtrxriyea/image/upload/v1774006165/etc/pwkwr9lalmwrzrrnzdx3.avif)
+![레시피 프로젝트 도식도](docs/recipe-archi.png)
 
 ## 구현 내용
 
