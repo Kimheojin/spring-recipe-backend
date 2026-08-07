@@ -1,19 +1,14 @@
-# Spring Recipe Search Backend
+# Recipe Finder
 
-Spring Boot와 MongoDB Atlas Search를 기반으로 만든 레시피 검색 API 서버입니다.  
-한국어 레시피 검색, 자동완성, 비회원 좋아요/북마크, 테스트 기반 API 문서화를 제공합니다.
+- Spring Boot와 MongoDB Atlas Search를 기반으로 만든 개인 레시피 검색 백엔드 프로젝트
+- 크롤링한 레시피 데이터를 MongoDB에 저장하고, MongoDB Atlas Search를 활용해 레시피명, 재료, 조리 과정 검색을 구현
+- 비회원 사용자를 위해 UUID 쿠키 기반 좋아요/북마크 기능을 제공하고, 테스트 기반 REST Docs 문서화를 적용
 
-- 서비스 링크: [Recipe Finder](https://recipefinder-hj.vercel.app/)
-- API 서버 포트: `3777`
-- 상세 Atlas Search 인덱스 설정: [mongoIndex.md](./mongoIndex.md)
-
-## 프로젝트 개요
+## ✅ 프로젝트 개요
 
 ![레시피 프로젝트 도식도](./docs/overview.png)
 
-이 프로젝트는 레시피 데이터를 MongoDB에 저장하고, MongoDB Atlas Search의 한국어 형태소 분석과 자동완성 인덱스를 활용해 검색 품질을 개선하는 백엔드입니다. 로그인 없이도 브라우저 쿠키 기반으로 좋아요와 북마크를 사용할 수 있도록 MySQL에 비회원 상태를 저장합니다.
-
-## 주요 기능
+## ✅ 주요 기능
 
 | 기능 | 설명 |
 | --- | --- |
@@ -24,7 +19,7 @@ Spring Boot와 MongoDB Atlas Search를 기반으로 만든 레시피 검색 API 
 | API 문서화 | Spring REST Docs와 Asciidoc 기반 문서 자동 생성 |
 | 테스트 독립성 | Embedded MongoDB와 H2를 활용한 외부 인프라 독립 테스트 |
 
-## 기술 스택
+## ✅ 기술 스택
 
 | 구분 | 기술 |
 | --- | --- |
@@ -37,7 +32,7 @@ Spring Boot와 MongoDB Atlas Search를 기반으로 만든 레시피 검색 API 
 | Test | JUnit 5, MockMvc, Embedded MongoDB, H2 |
 | Build & Deploy | Gradle, Docker |
 
-## 실행 방법
+## ✅ 실행 방법
 
 ### 테스트 실행
 
