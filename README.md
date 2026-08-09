@@ -22,7 +22,7 @@
 ### ✅ 배포 환경
 
 
-- [온프레미스 서버 스펙](https://github.com/heojinn/spring-recipe-backend/wiki/2.-OnPremises-Server-Specifications)
+[온프레미스 서버 스펙](https://github.com/heojinn/spring-recipe-backend/wiki/2.-OnPremises-Server-Specifications)
 
 ### ✅ 주요 기능
 
@@ -46,3 +46,7 @@
 #### [5. Guest Recipe Management with Cookie & Interceptor](https://github.com/heojinn/spring-recipe-backend/wiki/8.-Guest-Recipe-Management-with-Cookie-&-Interceptor)
 
 ### ✅ etc
+
+#### [프론트 repo](https://github.com/heojinn/react-recipe-finder.git)
+#### [Spring Batch repo](https://github.com/heojinn/spring-batch-preprocessing.git)
+#### [크롤링 코드 repo](https://github.com/heojinn/spring-jsoup-crawler.git)
